@@ -3356,6 +3356,207 @@ var X, Z, Q = e(( () => {
     {ref: X, nextTick: Z} = window.Vue
 }
 ));
+var TBAImport = {
+    norm(s) { return String(s == null ? '' : s).replace(/\r/g, ''); },
+    cleanLines(text) {
+        return this.norm(text).split('\n').map(function (l) { return l.trim(); })
+            .filter(function (l) { return l !== '' && l.indexOf('//') !== 0 && l.charAt(0) !== '#'; });
+    },
+    epsTok(x) {
+        var t = (x == null ? '' : String(x)).trim();
+        if (/^(ε|eps|epsilon|lambda|λ|empty)$/i.test(t)) return 'ε';
+        return t;
+    },
+    splitRule(line) {
+        var m = line.match(/^(.*?)\s*(?:::=|->|→|⇒|:|=)\s*(.*)$/);
+        if (!m) return null;
+        return { variable: m[1].trim(), rhs: m[2].trim() };
+    },
+    parseGrammar(text) {
+        var lines = this.cleanLines(text);
+        var directives = {}, order = [], map = {}, self = this;
+        lines.forEach(function (line) {
+            var dm = line.match(/^(string|target|uji|untai|test)\s*[:=]\s*(.*)$/i);
+            if (dm) { directives.string = dm[2].trim(); return; }
+            var r = self.splitRule(line);
+            if (!r || r.variable === '') throw new Error('Baris tidak valid: "' + line + '". Gunakan format: Variabel -> produksi');
+            var v = r.variable;
+            var prods = r.rhs.split('|').map(function (x) { return self.epsTok(x.replace(/\s+/g, '')); }).filter(function (x) { return x !== ''; });
+            var prodStr = prods.join(' | ');
+            if (map[v] === undefined) { map[v] = prodStr; order.push(v); }
+            else { map[v] = map[v] === '' ? prodStr : (prodStr === '' ? map[v] : map[v] + ' | ' + prodStr); }
+        });
+        if (order.length === 0) throw new Error('Tidak ada aturan produksi yang terbaca.');
+        var rules = order.map(function (v) { return { variable: v, productions: map[v] }; });
+        return { rules: rules, directives: directives };
+    },
+    normLabels(s) {
+        var self = this;
+        return s.split(',').map(function (x) { return self.epsTok(x); }).filter(function (x) { return x !== ''; }).join(',');
+    },
+    parseFSATrans(line) {
+        var m = line.match(/^(.+?)\s*-\s*(.+?)\s*-*->\s*(.+)$/);
+        if (m) return { from: m[1].trim(), to: m[3].trim(), label: this.normLabels(m[2]) };
+        var p = line.split(',').map(function (x) { return x.trim(); });
+        if (p.length === 3) return { from: p[0], to: p[2], label: this.epsTok(p[1]) };
+        var sp = line.split(/\s+/);
+        if (sp.length === 3) return { from: sp[0], to: sp[2], label: this.epsTok(sp[1]) };
+        return null;
+    },
+    parseFSA(text) {
+        var lines = this.cleanLines(text);
+        var start = null, finalArr = [], alphaDir = [], trans = [], order = [], self = this;
+        var pushState = function (x) { if (x && order.indexOf(x) === -1) order.push(x); };
+        lines.forEach(function (line) {
+            var m;
+            if ((m = line.match(/^(start|awal)\s*[:=]\s*(.*)$/i))) { start = m[2].trim(); pushState(start); return; }
+            if ((m = line.match(/^(final|akhir|accept)\s*[:=]\s*(.*)$/i))) { finalArr = m[2].split(/[,\s]+/).filter(Boolean); finalArr.forEach(pushState); return; }
+            if ((m = line.match(/^(states|state)\s*[:=]\s*(.*)$/i))) { m[2].split(/[,\s]+/).filter(Boolean).forEach(pushState); return; }
+            if ((m = line.match(/^(alphabet|alfabet|sigma|input)\s*[:=]\s*(.*)$/i))) { alphaDir = m[2].split(/[,\s]+/).filter(Boolean); return; }
+            var t = self.parseFSATrans(line);
+            if (!t) throw new Error('Baris transisi FSA tidak valid: "' + line + '". Format: q0 -a-> q1  atau  q0, a, q1');
+            pushState(t.from); pushState(t.to);
+            trans.push(t);
+        });
+        if (!start) start = order[0] || 'q0';
+        if (order.indexOf(start) === -1) order.unshift(start);
+        var alpha = alphaDir.slice();
+        if (alpha.length === 0) {
+            var set = {};
+            trans.forEach(function (t) { t.label.split(',').forEach(function (x) { x = x.trim(); if (x && x !== 'ε') set[x] = 1; }); });
+            alpha = Object.keys(set).sort();
+        }
+        finalArr = finalArr.filter(function (x) { return order.indexOf(x) !== -1; });
+        return { states: order, alphabet: alpha, start: start, final: finalArr, transitions: trans };
+    },
+    normEqType(v) {
+        var s = v.toUpperCase().replace(/[\s_-]+/g, '');
+        if (s.indexOf('TEST') >= 0 || s.indexOf('UJI') >= 0 || s.indexOf('STRING') >= 0) return 'TEST_STRING';
+        var fs = s.indexOf('FS'), ns = s.indexOf('NS');
+        if (fs >= 0 && ns >= 0) return fs < ns ? 'FS_TO_NS' : 'NS_TO_FS';
+        var f = s.indexOf('FINAL'), nl = s.indexOf('NULL');
+        if (f >= 0 && nl >= 0) return f < nl ? 'FS_TO_NS' : 'NS_TO_FS';
+        return 'TEST_STRING';
+    },
+    parsePDATrans(line) {
+        var parts = line.split(/->|→/);
+        if (parts.length !== 2) return null;
+        var left = parts[0].split(',').map(function (x) { return x.trim(); });
+        var right = parts[1].split(',').map(function (x) { return x.trim(); });
+        if (left.length < 3 || right.length < 2) return null;
+        return { from: left[0], input: this.epsTok(left[1]), pop: this.epsTok(left[2]), to: right[0], push: this.epsTok(right[1]) };
+    },
+    parsePDAEQ(text) {
+        var lines = this.cleanLines(text);
+        var cfg = { states: [], inputAlphabet: '', stackAlphabet: '', start: '', z0: '', final: [], transitions: [] };
+        var type = null, str = '', order = [], self = this;
+        var pushState = function (x) { if (x && order.indexOf(x) === -1) order.push(x); };
+        lines.forEach(function (line) {
+            var dm = line.match(/^([a-zA-Z0-9_]+)\s*[:=]\s*(.*)$/);
+            if (dm && !/->|→/.test(line)) {
+                var key = dm[1].toLowerCase(), val = dm[2].trim();
+                if (key === 'type' || key === 'tipe') { type = self.normEqType(val); return; }
+                if (key === 'start' || key === 'awal') { cfg.start = val; pushState(val); return; }
+                if (key === 'z0' || key === 'z') { cfg.z0 = val; return; }
+                if (key === 'final' || key === 'akhir') { cfg.final = val.split(/[,\s]+/).filter(Boolean); cfg.final.forEach(pushState); return; }
+                if (key === 'stack' || key === 'gamma') { cfg.stackAlphabet = val.split(/[,\s]+/).filter(Boolean).join(', '); return; }
+                if (key === 'input' || key === 'sigma' || key === 'alphabet' || key === 'alfabet') { cfg.inputAlphabet = val.split(/[,\s]+/).filter(Boolean).join(', '); return; }
+                if (key === 'string' || key === 'untai' || key === 'test') { str = val; return; }
+                if (key === 'states' || key === 'state') { val.split(/[,\s]+/).filter(Boolean).forEach(pushState); return; }
+                return;
+            }
+            var t = self.parsePDATrans(line);
+            if (!t) throw new Error('Baris transisi PDA tidak valid: "' + line + '". Format: q0, input, pop -> q1, push');
+            pushState(t.from); pushState(t.to);
+            cfg.transitions.push(t);
+        });
+        if (!cfg.start) cfg.start = order[0] || 'q0';
+        if (order.indexOf(cfg.start) === -1) order.unshift(cfg.start);
+        cfg.states = order;
+        if (!cfg.stackAlphabet) {
+            var sset = {};
+            cfg.transitions.forEach(function (t) { if (t.pop && t.pop !== 'ε') sset[t.pop] = 1; });
+            if (cfg.z0) sset[cfg.z0] = 1;
+            cfg.stackAlphabet = Object.keys(sset).join(', ');
+        }
+        if (!cfg.z0) { var sa = cfg.stackAlphabet.split(/[,\s]+/).filter(Boolean); cfg.z0 = sa[sa.length - 1] || 'Z0'; }
+        if (!cfg.inputAlphabet) {
+            var iset = {};
+            cfg.transitions.forEach(function (t) { if (t.input && t.input !== 'ε') iset[t.input] = 1; });
+            cfg.inputAlphabet = Object.keys(iset).join(', ');
+        }
+        cfg.final = cfg.final.filter(function (x) { return cfg.states.indexOf(x) !== -1; });
+        if (!type) type = cfg.final.length ? 'TEST_STRING' : 'NS_TO_FS';
+        return { type: type, cfg: cfg, string: str };
+    },
+    parseTMTrans(line) {
+        var parts = line.split(/->|→/);
+        if (parts.length !== 2) return null;
+        var left = parts[0].split(',').map(function (x) { return x.trim(); });
+        var right = parts[1].split(',').map(function (x) { return x.trim(); });
+        if (left.length < 2 || right.length < 3) return null;
+        var mv = right[2].toUpperCase();
+        if (mv === 'KANAN' || mv === 'RIGHT') mv = 'R';
+        if (mv === 'KIRI' || mv === 'LEFT') mv = 'L';
+        return { from: left[0], read: left[1], to: right[0], write: right[1], move: (mv === 'L' ? 'L' : 'R') };
+    },
+    parseTM(lines) {
+        var cfg = { states: [], inputAlphabet: '', tapeAlphabet: '', start: '', final: [], blank: 'b', transitions: [] };
+        var str = null, order = [], self = this;
+        var pushState = function (x) { if (x && order.indexOf(x) === -1) order.push(x); };
+        lines.forEach(function (line) {
+            var dm = line.match(/^([a-zA-Z0-9_]+)\s*[:=]\s*(.*)$/);
+            if (dm && !/->|→/.test(line)) {
+                var key = dm[1].toLowerCase(), val = dm[2].trim();
+                if (key === 'start' || key === 'awal') { cfg.start = val; pushState(val); return; }
+                if (key === 'final' || key === 'akhir') { cfg.final = val.split(/[,\s]+/).filter(Boolean); cfg.final.forEach(pushState); return; }
+                if (key === 'blank' || key === 'kosong') { cfg.blank = val || 'b'; return; }
+                if (key === 'tape' || key === 'pita' || key === 'gamma') { cfg.tapeAlphabet = val.split(/[,\s]+/).filter(Boolean).join(', '); return; }
+                if (key === 'input' || key === 'sigma' || key === 'alfabet' || key === 'alphabet') { cfg.inputAlphabet = val.split(/[,\s]+/).filter(Boolean).join(', '); return; }
+                if (key === 'string' || key === 'untai' || key === 'test') { str = val; return; }
+                if (key === 'states' || key === 'state') { val.split(/[,\s]+/).filter(Boolean).forEach(pushState); return; }
+                return;
+            }
+            var t = self.parseTMTrans(line);
+            if (!t) throw new Error('Baris transisi Turing tidak valid: "' + line + '". Format: q0, baca -> q1, tulis, R');
+            pushState(t.from); pushState(t.to);
+            cfg.transitions.push(t);
+        });
+        if (!cfg.start) cfg.start = order[0] || 'q0';
+        if (order.indexOf(cfg.start) === -1) order.unshift(cfg.start);
+        cfg.states = order;
+        if (!cfg.tapeAlphabet) {
+            var tset = {};
+            cfg.transitions.forEach(function (t) { if (t.read) tset[t.read] = 1; if (t.write) tset[t.write] = 1; });
+            tset[cfg.blank] = 1;
+            cfg.tapeAlphabet = Object.keys(tset).join(', ');
+        }
+        if (!cfg.inputAlphabet) {
+            var iset = {};
+            cfg.transitions.forEach(function (t) { if (t.read && t.read !== cfg.blank) iset[t.read] = 1; });
+            cfg.inputAlphabet = Object.keys(iset).join(', ');
+        }
+        cfg.final = cfg.final.filter(function (x) { return cfg.states.indexOf(x) !== -1; });
+        return { cfg: cfg, string: str };
+    },
+    parseTMText(text) { return this.parseTM(this.cleanLines(text)); },
+    parseTMCombine(text) {
+        var raw = this.norm(text).split('\n');
+        var sections = [[], []], cur = -1;
+        raw.forEach(function (line0) {
+            var line = line0.trim();
+            if (line === '' || line.indexOf('//') === 0) return;
+            var hm = !/->|→/.test(line) && line.match(/^(?:#+|=+|\*+|-{2,})?\s*(?:m|mesin|machine|tm)\s*([12])\b/i);
+            if (hm) { cur = parseInt(hm[1], 10) - 1; return; }
+            if (line.charAt(0) === '#') return;
+            if (cur === -1) cur = 0;
+            sections[cur].push(line);
+        });
+        if (sections[0].length === 0 || sections[1].length === 0)
+            throw new Error('Butuh dua mesin. Pisahkan dengan baris penanda "# M1" dan "# M2".');
+        return { m1: this.parseTM(sections[0]).cfg, m2: this.parseTM(sections[1]).cfg };
+    }
+};
 t(( () => {
     s(),
     f(),
@@ -3366,16 +3567,6 @@ t(( () => {
     B(),
     K(),
     Q();
-    var e = () => {
-        let e = new Date().getTime()
-          , t = new Date(`2026-06-22T08:05:00+07:00`).getTime()
-          , n = new Date(`2026-06-22T09:50:00+07:00`).getTime();
-        e >= t && e <= n && (document.cookie = `tba_agreed=; max-age=0; path=/`,
-        window.location.href = `index.html`)
-    }
-    ;
-    e(),
-    setInterval(e, 1e4);
     var {createApp: t, ref: n, nextTick: r, onMounted: a, onUnmounted: o} = window.Vue;
     t({
         setup() {
@@ -3722,6 +3913,171 @@ t(( () => {
                 e.value = `TURING_COMBINE_REVIEW`
             }
             ;
+            let importOpen = n(!1)
+              , importText = n(``)
+              , importMsg = n(null);
+            window.Vue.watch(e, () => {
+                importOpen.value = !1,
+                importMsg.value = null,
+                importText.value = ``
+            }
+            );
+            let applyImport = () => {
+                let gs = e.value
+                  , txt = importText.value;
+                if (!txt || !txt.trim()) {
+                    importMsg.value = {
+                        type: `err`,
+                        text: `Teks masih kosong. Tempelkan soal terlebih dahulu.`
+                    };
+                    return
+                }
+                try {
+                    let res;
+                    if (gs === `FSA_VIEW`)
+                        res = TBAImport.parseFSA(txt),
+                        s.fsa.value = {
+                            states: res.states,
+                            alphabet: res.alphabet,
+                            start: res.start,
+                            final: res.final,
+                            transitions: res.transitions
+                        },
+                        y = {},
+                        t.value = !1,
+                        r( () => w(`fsa-network`, s.fsa.value, !1)),
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat FSA: ${res.states.length} state, ${res.transitions.length} transisi.`
+                        };
+                    else if (gs === `REG2FSA_VIEW`)
+                        res = TBAImport.parseGrammar(txt),
+                        l.regRules.value = res.rules,
+                        t.value = !1,
+                        y = {},
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat ${res.rules.length} aturan produksi.`
+                        };
+                    else if (gs === `CFG_SETUP`)
+                        res = TBAImport.parseGrammar(txt),
+                        c.cfgRules.value = res.rules,
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat ${res.rules.length} aturan produksi.`
+                        };
+                    else if (gs === `DERIVATION_SETUP`)
+                        res = TBAImport.parseGrammar(txt),
+                        d.derivRules.value = res.rules,
+                        res.directives.string !== undefined && (d.targetString.value = res.directives.string),
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat ${res.rules.length} aturan produksi${res.directives.string !== undefined ? ` & target string` : ``}.`
+                        };
+                    else if (gs === `CNF_SETUP`)
+                        res = TBAImport.parseGrammar(txt),
+                        f.cnfRules.value = res.rules,
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat ${res.rules.length} aturan produksi.`
+                        };
+                    else if (gs === `LEFTREC_SETUP`)
+                        res = TBAImport.parseGrammar(txt),
+                        p.lrRules.value = res.rules,
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat ${res.rules.length} aturan produksi.`
+                        };
+                    else if (gs === `GNF_SETUP`)
+                        res = TBAImport.parseGrammar(txt),
+                        m.gnfRules.value = res.rules,
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat ${res.rules.length} aturan produksi.`
+                        };
+                    else if (gs === `PDA_CFG_SETUP`)
+                        res = TBAImport.parseGrammar(txt),
+                        g.pdaCfgRules.value = res.rules,
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat ${res.rules.length} aturan produksi.`
+                        };
+                    else if (gs === `PDA_EQ_SETUP`)
+                        res = TBAImport.parsePDAEQ(txt),
+                        g.eqType.value = res.type,
+                        g.pdaEqConfig.value = res.cfg,
+                        g.targetStringEq.value = res.string || ``,
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat PDA: ${res.cfg.states.length} state, ${res.cfg.transitions.length} transisi (tipe ${res.type}).`
+                        };
+                    else if (gs === `TURING_SIM_SETUP`) {
+                        res = TBAImport.parseTMText(txt);
+                        let n = res.cfg;
+                        _.tmSimConfig.value = {
+                            states: n.states,
+                            inputAlphabet: n.inputAlphabet,
+                            tapeAlphabet: n.tapeAlphabet,
+                            start: n.start,
+                            final: n.final,
+                            blank: n.blank,
+                            transitions: []
+                        },
+                        res.string !== null && (_.tmSimString.value = res.string),
+                        r( () => {
+                            _.tmSimConfig.value.transitions = n.transitions
+                        }
+                        ),
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat Mesin Turing: ${n.states.length} state, ${n.transitions.length} transisi.`
+                        }
+                    } else if (gs === `TURING_COMBINE_SETUP`) {
+                        res = TBAImport.parseTMCombine(txt);
+                        let n = res.m1
+                          , i = res.m2;
+                        _.tmCombine1.value = {
+                            states: n.states,
+                            inputAlphabet: n.inputAlphabet,
+                            tapeAlphabet: n.tapeAlphabet,
+                            start: n.start,
+                            final: n.final,
+                            blank: n.blank,
+                            transitions: []
+                        },
+                        _.tmCombine2.value = {
+                            states: i.states,
+                            inputAlphabet: i.inputAlphabet,
+                            tapeAlphabet: i.tapeAlphabet,
+                            start: i.start,
+                            final: i.final,
+                            blank: i.blank,
+                            transitions: []
+                        },
+                        r( () => {
+                            _.tmCombine1.value.transitions = n.transitions,
+                            _.tmCombine2.value.transitions = i.transitions
+                        }
+                        ),
+                        importMsg.value = {
+                            type: `ok`,
+                            text: `Berhasil memuat 2 mesin (M1: ${n.transitions.length} transisi, M2: ${i.transitions.length} transisi).`
+                        }
+                    } else {
+                        importMsg.value = {
+                            type: `err`,
+                            text: `Mode tempel teks tidak tersedia untuk halaman ini.`
+                        };
+                        return
+                    }
+                } catch (err) {
+                    importMsg.value = {
+                        type: `err`,
+                        text: err && err.message ? err.message : `Format teks tidak dapat diuraikan.`
+                    }
+                }
+            }
+            ;
             return {
                 gameState: e,
                 goToMenu: D,
@@ -3824,7 +4180,11 @@ t(( () => {
                 goToTuringCombine: te,
                 solveTMCombine: ne,
                 loadTMCombinePreset: _.loadTMCombinePreset,
-                formatTuring: _.formatTuring
+                formatTuring: _.formatTuring,
+                importOpen: importOpen,
+                importText: importText,
+                importMsg: importMsg,
+                applyImport: applyImport
             }
         }
     }).mount(`#app`)

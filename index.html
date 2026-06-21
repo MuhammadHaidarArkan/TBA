@@ -415,6 +415,33 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                                             </button>
                                         </div>
                                     </div>
+
+                                    <!-- TEXT IMPORT TABS -->
+                                    <div class="flex gap-1 border-b border-slate-200 mb-4">
+                                        <button @click="importOpen = false" :class="!importOpen ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                                        <button @click="importOpen = true" :class="importOpen ? 'bg-purple-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                                    </div>
+                                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-inner mb-2">
+                                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                                            <i class="ph ph-info text-purple-500 text-base mt-0.5 shrink-0"></i>
+                                            <div>
+                                                <b>Format:</b> baris <code class="bg-slate-100 px-1 rounded">start:</code> &amp; <code class="bg-slate-100 px-1 rounded">final:</code> (pisahkan koma), lalu transisi <code class="bg-slate-100 px-1 rounded">q0 -a-&gt; q1</code> atau <code class="bg-slate-100 px-1 rounded">q0, a, q1</code>. Gunakan <code class="bg-slate-100 px-1 rounded">ε</code> untuk epsilon.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">start: q0
+final: q2
+q0 -a-> q0
+q0 -ε-> q1
+q1 -b-> q2
+q2 -a-> q1</pre>
+                                            </div>
+                                        </div>
+                                        <textarea v-model="importText" rows="8" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-purple-400 outline-none shadow-sm resize-y" placeholder="Tempel definisi automata di sini..."></textarea>
+                                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                                            <button @click="applyImport" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div v-show="!importOpen">
                                     <div class="mb-5">
                                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Himpunan State (Q)</label>
                                         <div class="flex flex-wrap gap-2 mb-2">
@@ -467,6 +494,7 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                                             </div>
                                         </div>
                                         <button @click="addTransition(); updateFSAGraph()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-bold rounded-lg transition border border-slate-200 flex items-center justify-center gap-2 shadow-sm"><i class="ph ph-plus"></i> Tambah Relasi Panah</button>
+                                    </div>
                                     </div>
                                     <button @click="showExplanation = true" class="mt-8 w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg">
                                         <i class="ph ph-eye"></i> Tampilkan Pembahasan
@@ -543,7 +571,30 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-xs sm:text-sm text-indigo-900 leading-relaxed shadow-sm mb-5">
+
+                                    <!-- TEXT IMPORT TABS -->
+                                    <div class="flex gap-1 border-b border-slate-200 mb-4">
+                                        <button @click="importOpen = false" :class="!importOpen ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                                        <button @click="importOpen = true" :class="importOpen ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                                    </div>
+                                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-inner mb-2">
+                                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                                            <i class="ph ph-info text-indigo-500 text-base mt-0.5 shrink-0"></i>
+                                            <div>
+                                                <b>Format:</b> satu aturan per baris memakai <code class="bg-slate-100 px-1 rounded">-&gt;</code>, pisahkan alternatif dengan <code class="bg-slate-100 px-1 rounded">|</code>. Tulis <code class="bg-slate-100 px-1 rounded">ε</code> / <code class="bg-slate-100 px-1 rounded">epsilon</code> untuk kosong.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">S -> aB | bA | ε
+A -> abaS
+B -> babS</pre>
+                                            </div>
+                                        </div>
+                                        <textarea v-model="importText" rows="7" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-indigo-400 outline-none shadow-sm resize-y" placeholder="Tempel aturan produksi di sini..."></textarea>
+                                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                                            <button @click="applyImport" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div v-show="!importOpen" class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-xs sm:text-sm text-indigo-900 leading-relaxed shadow-sm mb-5">
                                         <span class="font-bold">Format Penulisan (Pisahkan dengan <code class="bg-white px-1 py-0.5 rounded shadow-sm border border-indigo-200">|</code>):</span>
                                         <ul class="list-disc pl-5 mt-1 space-y-1">
                                             <li>Terminal + Variabel (Misal: <b>aA</b>)</li>
@@ -552,7 +603,7 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                                             <li>Kosong/Epsilon (Gunakan tombol <b>&epsilon;</b>)</li>
                                         </ul>
                                     </div>
-                                    <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin">
+                                    <div v-show="!importOpen" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin">
                                         <div v-for="(rule, idx) in regRules" :key="'reg-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-indigo-300 transition-all">
                                             <div class="flex items-center gap-3">
                                                 <input type="text" v-model="rule.variable" class="w-14 h-12 bg-indigo-100 text-indigo-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-indigo-400 uppercase" maxlength="1" :disabled="idx === 0">
@@ -567,7 +618,7 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                                             </div>
                                         </div>
                                     </div>
-                                    <button @click="addRegRule()" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                                    <button v-show="!importOpen" @click="addRegRule()" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
                                         <i class="ph ph-plus-circle"></i> Tambah Variabel
                                     </button>
                                     <button @click="showRegGraph()" class="mt-8 w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg">
@@ -644,7 +695,31 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                             </button>
                         </div>
                     </div>
-                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-blue-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> satu aturan per baris memakai <code class="bg-slate-100 px-1 rounded">-&gt;</code>, pisahkan alternatif dengan <code class="bg-slate-100 px-1 rounded">|</code>. Tulis <code class="bg-slate-100 px-1 rounded">ε</code> / <code class="bg-slate-100 px-1 rounded">epsilon</code> untuk produksi kosong. Baris pertama menjadi Start Symbol.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">S -> AA | C | bd
+A -> Bb | ε
+B -> AB | d
+C -> de</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="8" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-blue-400 outline-none shadow-sm resize-y" placeholder="Tempel aturan produksi di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
                         <div class="space-y-3">
                             <div v-for="(rule, idx) in cfgRules" :key="'cfg-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-blue-300 transition-all">
                                 <div class="flex items-center gap-3">
@@ -724,7 +799,29 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                             </button>
                         </div>
                     </div>
-                    <div class="flex flex-col lg:flex-row gap-6">
+
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-emerald-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> satu aturan per baris memakai <code class="bg-slate-100 px-1 rounded">-&gt;</code>. Tambahkan baris <code class="bg-slate-100 px-1 rounded">string: ...</code> untuk target untai (kosongkan untuk cari ambigu otomatis).
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">S -> aSa | bSb | c
+string: abcba</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="8" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-emerald-400 outline-none shadow-sm resize-y" placeholder="Tempel grammar (dan baris string:) di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex flex-col lg:flex-row gap-6">
                         <div class="flex-[2] bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Aturan Produksi</label>
                             <div class="space-y-3">
@@ -884,7 +981,30 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                         </div>
                     </div>
 
-                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-orange-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-orange-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-orange-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> satu aturan per baris memakai <code class="bg-slate-100 px-1 rounded">-&gt;</code>, pisahkan alternatif dengan <code class="bg-slate-100 px-1 rounded">|</code>. Baris pertama menjadi Start Symbol. (Diasumsikan sudah bebas &epsilon; &amp; unit.)
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">S -> aB | CA
+A -> a | bc
+B -> BC | Ab
+C -> aB | b</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="8" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-orange-400 outline-none shadow-sm resize-y" placeholder="Tempel aturan produksi di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
                         <div class="space-y-3">
                             <div v-for="(rule, idx) in cnfRules" :key="'cnf-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-orange-300 transition-all">
                                 <div class="flex items-center gap-3">
@@ -970,7 +1090,29 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                         </div>
                     </div>
 
-                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-rose-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-rose-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-rose-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> satu aturan per baris memakai <code class="bg-slate-100 px-1 rounded">-&gt;</code>, pisahkan alternatif dengan <code class="bg-slate-100 px-1 rounded">|</code>. Baris pertama menjadi Start Symbol.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">S -> SBa | Ab
+A -> Sa | AAb | a
+B -> Sb | BBa | b</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="8" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-rose-400 outline-none shadow-sm resize-y" placeholder="Tempel aturan produksi di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
                         <div class="space-y-3">
                             <div v-for="(rule, idx) in lrRules" :key="'lr-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-rose-300 transition-all">
                                 <div class="flex items-center gap-3">
@@ -1057,7 +1199,29 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                         </div>
                     </div>
 
-                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-teal-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-teal-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-teal-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> satu aturan per baris memakai <code class="bg-slate-100 px-1 rounded">-&gt;</code>, pisahkan alternatif dengan <code class="bg-slate-100 px-1 rounded">|</code>. Urutan baris menentukan urutan variabel (penting untuk GNF).
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">A -> BC
+B -> CA | b
+C -> AB | a</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="8" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-teal-400 outline-none shadow-sm resize-y" placeholder="Tempel aturan produksi di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
                         <div class="space-y-3">
                             <div v-for="(rule, idx) in gnfRules" :key="'gnf-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-teal-300 transition-all">
                                 <div class="flex items-center gap-3">
@@ -1146,7 +1310,29 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                             </button>
                         </div>
                     </div>
-                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-cyan-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-cyan-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-cyan-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> satu aturan per baris memakai <code class="bg-slate-100 px-1 rounded">-&gt;</code>, pisahkan alternatif dengan <code class="bg-slate-100 px-1 rounded">|</code>. Baris pertama menjadi Start Symbol.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">S -> aAA
+A -> aS | bS | a</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="8" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-cyan-400 outline-none shadow-sm resize-y" placeholder="Tempel aturan produksi di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
                         <div class="space-y-3">
                             <div v-for="(rule, idx) in pdaCfgRules" :key="'pda-cfg-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-cyan-300 transition-all">
                                 <div class="flex items-center gap-3">
@@ -1272,7 +1458,36 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                         </div>
                     </div>
 
-                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner space-y-5">
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-pink-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-pink-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-pink-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> baris pengaturan <code class="bg-slate-100 px-1 rounded">type</code> (FS_TO_NS / NS_TO_FS / TEST), <code class="bg-slate-100 px-1 rounded">start</code>, <code class="bg-slate-100 px-1 rounded">z0</code>, <code class="bg-slate-100 px-1 rounded">stack</code>, <code class="bg-slate-100 px-1 rounded">final</code>, <code class="bg-slate-100 px-1 rounded">string</code>; lalu transisi <code class="bg-slate-100 px-1 rounded">from, input, pop -&gt; to, push</code>. Gunakan <code class="bg-slate-100 px-1 rounded">ε</code> untuk kosong.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">type: NS_TO_FS
+start: q0
+z0: Z
+stack: X, Z
+q0, 1, Z -> q0, XZ
+q0, 1, X -> q0, XX
+q0, 0, X -> q1, X
+q0, ε, Z -> q0, ε
+q1, 1, X -> q1, ε
+q1, 0, Z -> q0, Z</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="10" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-pink-400 outline-none shadow-sm resize-y" placeholder="Tempel konfigurasi PDA di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner space-y-5">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Tipe Permasalahan / Soal</label>
                             <select v-model="eqType" class="w-full sm:w-1/2 bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-pink-400 outline-none shadow-sm text-pink-900">
@@ -1504,7 +1719,36 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                         </div>
                     </div>
 
-                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner space-y-5">
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-amber-500 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-amber-500 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-amber-500 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> baris pengaturan <code class="bg-slate-100 px-1 rounded">start</code>, <code class="bg-slate-100 px-1 rounded">final</code>, <code class="bg-slate-100 px-1 rounded">blank</code>, <code class="bg-slate-100 px-1 rounded">string</code>; lalu transisi <code class="bg-slate-100 px-1 rounded">from, baca -&gt; to, tulis, R/L</code>.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre">start: q1
+final: q4
+blank: b
+string: aa
+q1, a -> q2, a, R
+q1, b -> q2, b, R
+q2, a -> q3, a, R
+q2, b -> q2, b, L
+q3, a -> q4, a, R
+q3, b -> q4, b, R</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="10" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-amber-400 outline-none shadow-sm resize-y" placeholder="Tempel konfigurasi Mesin Turing di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner space-y-5">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="col-span-1 md:col-span-2">
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Himpunan State (Q)</label>
@@ -1648,7 +1892,40 @@ input::placeholder, textarea::placeholder { color:#5b6275 !important; }
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                    <!-- TEXT IMPORT TABS -->
+                    <div class="flex gap-1 border-b border-slate-200">
+                        <button @click="importOpen = false" :class="!importOpen ? 'bg-lime-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-cursor-click"></i> Input Manual</button>
+                        <button @click="importOpen = true" :class="importOpen ? 'bg-lime-600 text-white' : 'bg-white text-slate-500 hover:text-slate-700'" class="px-4 py-2 rounded-t-lg font-bold text-sm transition flex items-center gap-2"><i class="ph ph-clipboard-text"></i> Tempel Teks</button>
+                    </div>
+                    <div v-show="importOpen" class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="flex items-start gap-2 text-xs text-slate-600 mb-3 bg-white border border-slate-200 rounded-lg p-3 leading-relaxed">
+                            <i class="ph ph-info text-lime-600 text-base mt-0.5 shrink-0"></i>
+                            <div>
+                                <b>Format:</b> pisahkan dua mesin dengan baris penanda <code class="bg-slate-100 px-1 rounded">#&nbsp;M1</code> dan <code class="bg-slate-100 px-1 rounded">#&nbsp;M2</code>. Tiap mesin memakai baris <code class="bg-slate-100 px-1 rounded">start</code>, <code class="bg-slate-100 px-1 rounded">final</code> lalu transisi <code class="bg-slate-100 px-1 rounded">from, baca -&gt; to, tulis, R/L</code>.
+<pre class="mt-2 bg-slate-100 text-slate-700 rounded p-2 text-[11px] leading-snug overflow-x-auto whitespace-pre"># M1
+start: q1
+final: q4
+q1, a -> q2, a, R
+q1, b -> q2, b, R
+q2, a -> q3, a, R
+q2, b -> q2, b, L
+q3, a -> q4, a, R
+q3, b -> q4, b, R
+# M2
+start: p1
+final: p2
+p1, a -> p2, a, R
+p1, b -> p2, a, L</pre>
+                            </div>
+                        </div>
+                        <textarea v-model="importText" rows="12" spellcheck="false" class="w-full bg-white border border-slate-300 rounded-lg p-3 font-mono text-sm focus:ring-2 focus:ring-lime-400 outline-none shadow-sm resize-y" placeholder="Tempel dua mesin (# M1 ... # M2 ...) di sini..."></textarea>
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <button @click="applyImport" class="px-5 py-2.5 bg-lime-600 hover:bg-lime-700 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-2"><i class="ph ph-arrow-circle-down"></i> Terapkan ke Editor</button>
+                            <span v-if="importMsg" :class="importMsg.type === 'ok' ? 'text-emerald-600' : 'text-red-600'" class="text-sm font-bold flex items-center gap-1.5"><i :class="importMsg.type === 'ok' ? 'ph-check-circle' : 'ph-warning-circle'" class="ph text-base"></i>{{ importMsg.text }}</span>
+                        </div>
+                    </div>
+
+                    <div v-show="!importOpen" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                         <!-- TM 1 -->
                         <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
                             <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">Mesin 1 (M<sub>1</sub>)</h4>
