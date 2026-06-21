@@ -3410,9 +3410,9 @@ t(( () => {
             }
             );
             let C = (e, t, n=!1) => {
-                let r = n ? `#4338ca` : `#4c1d95`
+                let r = n ? `#a5b4fc` : `#d8b4fe`
                   , i = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">`;
-                i += `<rect x="0" y="0" width="100" height="100" fill="#ffffff"/>`,
+                i += `<rect x="0" y="0" width="100" height="100" fill="#1d2129"/>`,
                 t && (i += `<circle cx="50" cy="50" r="38" stroke="${r}" stroke-width="3" fill="none"/>`);
                 let a = e.match(/^([a-zA-Z]+)_?([0-9]+)$/)
                   , o = a ? `${a[1]}<tspan dy="6" font-size="20">${a[2]}</tspan>` : e
@@ -3450,8 +3450,8 @@ t(( () => {
                         image: C(e, i, a),
                         size: 48,
                         color: {
-                            border: a ? `#4338ca` : `#4c1d95`,
-                            background: e === s ? a ? `#e0e7ff` : `#f3e8ff` : `#ffffff`
+                            border: a ? `#a5b4fc` : `#d8b4fe`,
+                            background: e === s ? a ? `#2d2f55` : `#3a2a55` : `#1d2129`
                         },
                         borderWidth: 2
                     }
@@ -3478,15 +3478,15 @@ t(( () => {
                         label: Array.from(e.labels).sort().join(`, `),
                         arrows: `to`,
                         color: {
-                            color: `#94a3b8`,
-                            highlight: a ? `#4f46e5` : `#7c3aed`
+                            color: `#4b5366`,
+                            highlight: a ? `#818cf8` : `#c084fc`
                         },
                         width: 2,
                         font: {
                             size: 16,
-                            color: `#334155`,
+                            color: `#e2e6f0`,
                             bold: !0,
-                            background: `rgba(255,255,255,0.9)`,
+                            background: `rgba(29,33,41,0.9)`,
                             strokeWidth: 0,
                             align: `top`,
                             vadjust: n ? -12 : 0
@@ -3528,14 +3528,14 @@ t(( () => {
                         e.beginPath(),
                         e.moveTo(n - 48 - 35, r),
                         e.lineTo(n - 48 - 2, r),
-                        e.strokeStyle = a ? `#4338ca` : `#7c3aed`,
+                        e.strokeStyle = a ? `#818cf8` : `#c084fc`,
                         e.lineWidth = 4,
                         e.stroke(),
                         e.beginPath(),
                         e.moveTo(n - 48 - 2, r),
                         e.lineTo(n - 48 - 14, r - 8),
                         e.lineTo(n - 48 - 14, r + 8),
-                        e.fillStyle = a ? `#4338ca` : `#7c3aed`,
+                        e.fillStyle = a ? `#818cf8` : `#c084fc`,
                         e.fill()
                     }
                 }),
@@ -3559,16 +3559,16 @@ t(( () => {
                     label: e.label,
                     shape: e.isVar ? `circle` : `box`,
                     color: e.isVar ? {
-                        background: `#e0e7ff`,
-                        border: `#4338ca`
+                        background: `#2d2f55`,
+                        border: `#818cf8`
                     } : {
-                        background: `#f8fafc`,
-                        border: `#94a3b8`
+                        background: `#242937`,
+                        border: `#4b5366`
                     },
                     font: {
                         size: 18,
                         bold: !0,
-                        color: e.isVar ? `#312e81` : `#334155`
+                        color: e.isVar ? `#c7d2fe` : `#cbd5e1`
                     },
                     borderWidth: 2,
                     size: 20
@@ -3577,7 +3577,7 @@ t(( () => {
                     from: e.from,
                     to: e.to,
                     arrows: ``,
-                    color: `#cbd5e1`,
+                    color: `#4b5366`,
                     width: 2,
                     smooth: {
                         type: `cubicBezier`,
