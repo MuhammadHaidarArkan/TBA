@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="googlebot" content="noindex, nofollow">
+    <title>Materi Lengkap - Diktat Gratis UAS TBA</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <style>
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        [v-cloak] { display: none !important; }
+        .rule-input { letter-spacing: 0.05em; }
+        .review-card { transition: all 0.2s ease-in-out; cursor: pointer; }
+        .review-card:hover { transform: translateX(4px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-color: #a855f7 !important; }
+        .vis-network { cursor: grab; outline: none; }
+        .vis-network:active { cursor: grabbing; }
+    </style>
+  <script type="module" crossorigin src="./tba.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen selection:bg-purple-200">
+
+    <div id="app" v-cloak class="max-w-[90rem] mx-auto min-h-screen flex flex-col p-3 sm:p-6 md:p-8 space-y-6">
+        
+        <!-- ==================== HEADER ==================== -->
+        <header class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 fade-in">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <button v-if="gameState !== 'MENU'" @click="goToMenu" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition shadow-sm shrink-0" title="Kembali ke Menu">
+                    <i class="ph ph-house text-2xl"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold text-purple-900 leading-tight">Diktat Gratis UAS TBA</h1>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-if="gameState === 'FSA_VIEW'">Modul 1: Konversi FSA ke Aturan Produksi</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'REG2FSA_VIEW'">Modul 2: Aturan Produksi ke FSA</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'CFG_SETUP' || gameState === 'CFG_REVIEW'">Modul 3: Penyederhanaan Context-Free Grammar (CFG)</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'DERIVATION_SETUP' || gameState === 'DERIVATION_REVIEW'">Modul 4: Parsing & Derivation Tree</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'CNF_SETUP' || gameState === 'CNF_REVIEW'">Modul 5: Bentuk Normal Chomsky (CNF)</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'LEFTREC_SETUP' || gameState === 'LEFTREC_REVIEW'">Modul 6: Penghilangan Rekursif Kiri</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'GNF_SETUP' || gameState === 'GNF_REVIEW'">Modul 7: Bentuk Normal Greibach (GNF)</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'PDA_CFG_SETUP' || gameState === 'PDA_CFG_REVIEW'">Modul 8: Konversi CFG ke PDA</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'PDA_EQ_SETUP' || gameState === 'PDA_EQ_REVIEW'">Modul 9: Ekuivalensi PDA</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'TURING_SIM_SETUP' || gameState === 'TURING_SIM_REVIEW'">Modul 10: Simulasi Mesin Turing</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else-if="gameState === 'TURING_COMBINE_SETUP' || gameState === 'TURING_COMBINE_REVIEW'">Modul 11: Kombinasi Mesin Turing</p>
+                    <p class="text-slate-500 text-xs md:text-sm mt-0.5" v-else>Pilih materi untuk mulai belajar</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="min-h-[500px] flex-1 fade-in flex flex-col">
+            <transition name="fade" mode="out-in">
+                
+                <!-- ==================== MENU MATERI ==================== -->
+                <div v-if="gameState === 'MENU'" key="menu" class="flex-1 flex flex-col space-y-6 mt-4">
+                    <div class="bg-gradient-to-r from-purple-700 to-indigo-700 rounded-3xl p-8 md:p-10 text-white shadow-xl">
+                        <h2 class="text-3xl font-black mb-2 flex items-center gap-3"><i class="ph ph-books text-4xl text-purple-300"></i> Daftar Materi</h2>
+                        <p class="text-purple-100 text-lg">Pilih modul interaktif untuk mulai mensimulasikan dan menguji pemahaman teori automata Anda.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <!-- MODUL 1 -->
+                        <div @click="goToFSA" class="bg-white border-2 border-purple-200 hover:border-purple-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-purple-100 text-purple-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-purple-200 self-start">Modul 1</span>
+                            <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-graph text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">FSA ke Aturan Produksi</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Ekstrak tata bahasa reguler otomatis dari transisi state automata (Visualisasi Interaktif).</p>
+                        </div>
+
+                        <!-- MODUL 2 -->
+                        <div @click="goToReg2FSA" class="bg-white border-2 border-indigo-200 hover:border-indigo-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-indigo-100 text-indigo-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-indigo-200 self-start">Modul 2</span>
+                            <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-arrows-merge text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Aturan Produksi ke FSA</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Kebalikan Modul 1. Terjemahkan sintaks tata bahasa reguler menjadi diagram graf FSA yang valid.</p>
+                        </div>
+
+                        <!-- MODUL 3 -->
+                        <div @click="goToCFG" class="bg-white border-2 border-blue-200 hover:border-blue-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-blue-100 text-blue-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-blue-200 self-start">Modul 3</span>
+                            <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-funnel text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Penyederhanaan CFG</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Sederhanakan tata bahasa bebas konteks: Penghilangan Produksi &epsilon;, Produksi Unit, dan Produksi Useless.</p>
+                        </div>
+
+                        <!-- MODUL 4 -->
+                        <div @click="goToDerivation" class="bg-white border-2 border-emerald-200 hover:border-emerald-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-emerald-100 text-emerald-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-emerald-200 self-start">Modul 4</span>
+                            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-tree-structure text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Parsing & Derivation</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Analisis Leftmost/Rightmost derivation tree dan uji Ambiguitas CFG pada sebuah string.</p>
+                        </div>
+
+                        <!-- MODUL 5 -->
+                        <div @click="goToCNF" class="bg-white border-2 border-orange-200 hover:border-orange-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-orange-100 text-orange-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-orange-200 self-start">Modul 5</span>
+                            <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-brackets-angle text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Bentuk Normal Chomsky</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Ubah CFG yang telah disederhanakan menjadi bentuk standar Chomsky Normal Form (CNF).</p>
+                        </div>
+
+                        <!-- MODUL 6 -->
+                        <div @click="goToLeftRec" class="bg-white border-2 border-rose-200 hover:border-rose-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-rose-100 text-rose-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-rose-200 self-start">Modul 6</span>
+                            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-arrow-u-up-left text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Penghilangan Rekursif Kiri</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Hindari loop tidak berhingga dari aturan rekursif kiri (Left Recursion).</p>
+                        </div>
+
+                        <!-- MODUL 7 -->
+                        <div @click="goToGNF" class="bg-white border-2 border-teal-200 hover:border-teal-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-teal-100 text-teal-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-teal-200 self-start">Modul 7</span>
+                            <div class="w-14 h-14 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-text-columns text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Bentuk Normal Greibach</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Ubah CFG ke dalam bentuk Normal Greibach (GNF) melalui proses substitusi berjenjang atau metode matriks.</p>
+                        </div>
+
+                        <!-- MODUL 8 -->
+                        <div @click="goToPDACFG" class="bg-white border-2 border-cyan-200 hover:border-cyan-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-cyan-100 text-cyan-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-cyan-200 self-start">Modul 8</span>
+                            <div class="w-14 h-14 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-stack text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Konversi CFG ke PDA</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Konstruksikan Push Down Automata (PDA) langsung dari sekumpulan Tata Bahasa Bebas Konteks (CFG).</p>
+                        </div>
+
+                        <!-- MODUL 9 -->
+                        <div @click="goToPDAEQ" class="bg-white border-2 border-pink-200 hover:border-pink-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-pink-100 text-pink-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-pink-200 self-start">Modul 9</span>
+                            <div class="w-14 h-14 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-arrows-left-right text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Ekuivalensi PDA</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Ubah Final State PDA menjadi Null Stack PDA, ataupun sebaliknya dengan penyelarasan transisi komprehensif.</p>
+                        </div>
+
+                        <!-- MODUL 10 TURING SIMULATOR -->
+                        <div @click="goToTuringSim" class="bg-white border-2 border-amber-200 hover:border-amber-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-amber-100 text-amber-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-amber-200 self-start">Modul 10</span>
+                            <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-film-strip text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Simulasi Mesin Turing</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Simulasikan dan lihat jejak Deskripsi Seketika (Trace) saat Mesin Turing membaca pita input untai string.</p>
+                        </div>
+
+                        <!-- MODUL 11 TURING COMBINATION -->
+                        <div @click="goToTuringCombine" class="bg-white border-2 border-lime-200 hover:border-lime-500 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-lg group relative overflow-hidden flex flex-col">
+                            <span class="bg-lime-100 text-lime-700 text-[10px] uppercase tracking-wider font-black px-2.5 py-1 rounded-md mb-4 inline-block shadow-sm border border-lime-200 self-start">Modul 11</span>
+                            <div class="w-14 h-14 bg-lime-100 text-lime-600 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-git-merge text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Kombinasi Mesin Turing</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">Hubungkan dua Mesin Turing berbeda menjadi satu kesatuan mesin utuh yang berkesinambungan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 1: FSA VIEW (EKSPLANASI & EDITOR) ==================== -->
+                <div v-else-if="gameState === 'FSA_VIEW'" key="fsa_view" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6 items-start">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4 w-full">
+                        <h2 class="text-2xl font-black text-purple-900 flex items-center gap-2"><i class="ph ph-graph text-purple-600"></i> Ekstraksi Aturan Produksi FSA</h2>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row gap-6 items-start w-full">
+                        <div class="lg:w-1/2 w-full flex flex-col bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden h-[500px] lg:sticky top-6">
+                            <div class="bg-slate-800 text-white p-3 font-bold text-sm flex items-center gap-2 justify-between">
+                                <span class="flex items-center gap-2"><i class="ph ph-graph text-purple-400"></i> Visualisasi Automata</span>
+                                <span v-if="showExplanation" class="text-xs font-normal text-slate-400"><i class="ph ph-hand-pointing"></i> Interaktif</span>
+                            </div>
+                            <div class="flex-1 relative bg-white">
+                                <div id="fsa-network" class="w-full h-full absolute inset-0"></div>
+                            </div>
+                            <div class="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-2 px-4 flex justify-between border-t border-slate-200 font-medium">
+                                <span>Drag node untuk menggeser. Scroll untuk zoom.</span>
+                                <span v-if="showExplanation">Hover step di kanan untuk highlight</span>
+                            </div>
+                        </div>
+
+                        <div class="lg:w-1/2 w-full">
+                            <transition name="fade" mode="out-in">
+                                <div v-if="!showExplanation" key="editor" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 border-b pb-4">
+                                        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i class="ph ph-pencil-simple text-purple-600"></i> Editor Automata</h3>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <button @click="loadFSAPreset('lat9-1')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition shadow-sm border border-slate-200">lat9-1</button>
+                                            <button @click="loadFSAPreset('lat9-2')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition shadow-sm border border-slate-200">lat9-2</button>
+                                            <button @click="doRandomFSA" class="px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs font-bold rounded-lg transition flex items-center gap-1 shadow-sm">
+                                                <i class="ph ph-arrows-clockwise"></i> Acak Rute
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mb-5">
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Himpunan State (Q)</label>
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <div v-for="s in fsa.states" :key="'state-'+s" class="flex items-center bg-purple-50 text-purple-800 border border-purple-200 rounded-lg px-3 py-1.5 text-sm font-mono font-bold shadow-sm">
+                                                {{ s }}
+                                                <button @click="removeState(s); updateFSAGraph()" class="ml-2 text-purple-400 hover:text-red-500 transition" title="Hapus State" :disabled="fsa.states.length <= 1">
+                                                    <i class="ph ph-x-circle text-lg"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <button @click="addState(); updateFSAGraph()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded border border-slate-200 shadow-sm transition flex items-center gap-1 font-bold">
+                                            <i class="ph ph-plus"></i> Tambah State
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-1 gap-5 mb-6">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">State Awal (S)</label>
+                                            <select v-model="fsa.start" @change="updateFSAGraph" class="w-full sm:w-1/2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-purple-400 outline-none transition shadow-sm">
+                                                <option v-for="s in fsa.states" :key="'opt-start-'+s" :value="s">{{s}}</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">State Akhir (F)</label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <label v-for="s in fsa.states" :key="'final-'+s" class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-slate-100 transition shadow-sm">
+                                                    <input type="checkbox" :value="s" v-model="fsa.final" @change="updateFSAGraph" class="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500">
+                                                    <span class="text-sm font-mono font-bold text-slate-700">{{ s }}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 flex justify-between">
+                                            <span>Relasi Transisi (&delta;)</span>
+                                            <span class="font-normal normal-case text-[10px]">*Gunakan koma u/ bbrp input (a,b)</span>
+                                        </label>
+                                        <div class="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin mb-3">
+                                            <div v-for="(t, idx) in fsa.transitions" :key="'t-'+idx" class="flex gap-2 items-center">
+                                                <select v-model="t.from" @change="updateFSAGraph" class="flex-[2] bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-sm font-mono shadow-sm outline-none">
+                                                    <option v-for="s in fsa.states" :key="'opt-from-'+idx+'-'+s" :value="s">{{s}}</option>
+                                                </select>
+                                                <span class="text-slate-400 text-sm font-bold">&rarr;</span>
+                                                <input type="text" v-model="t.label" @change="updateFSAGraph" class="flex-1 min-w-[50px] bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-sm font-mono text-center shadow-sm outline-none focus:border-purple-400" placeholder="e.g. a">
+                                                <span class="text-slate-400 text-sm font-bold">&rarr;</span>
+                                                <select v-model="t.to" @change="updateFSAGraph" class="flex-[2] bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-sm font-mono shadow-sm outline-none">
+                                                    <option v-for="s in fsa.states" :key="'opt-to-'+idx+'-'+s" :value="s">{{s}}</option>
+                                                </select>
+                                                <button @click="insertEpsilonTransition(idx); updateFSAGraph()" class="w-9 h-9 flex items-center justify-center bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition shrink-0 border border-slate-200 shadow-sm font-bold" title="Sisipkan Epsilon Move">&epsilon;</button>
+                                                <button @click="removeTransition(idx); updateFSAGraph()" class="w-9 h-9 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition shrink-0 border border-red-100 shadow-sm"><i class="ph ph-trash"></i></button>
+                                            </div>
+                                        </div>
+                                        <button @click="addTransition(); updateFSAGraph()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-bold rounded-lg transition border border-slate-200 flex items-center justify-center gap-2 shadow-sm"><i class="ph ph-plus"></i> Tambah Relasi Panah</button>
+                                    </div>
+                                    <button @click="showExplanation = true" class="mt-8 w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg">
+                                        <i class="ph ph-eye"></i> Tampilkan Pembahasan
+                                    </button>
+                                </div>
+                                <div v-else key="explanation" class="space-y-4">
+                                    <button @click="showExplanation = false" class="mb-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg shadow-sm border border-slate-200 transition flex items-center gap-2 text-sm w-fit">
+                                        <i class="ph ph-arrow-left text-lg"></i> Kembali ke Editor
+                                    </button>
+                                    <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm mb-6">
+                                        <h4 class="text-sm font-bold text-indigo-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                            <i class="ph ph-info text-lg"></i> Mapping Variabel Grammar
+                                        </h4>
+                                        <p class="text-sm text-indigo-700 mb-3">State Awal direpresentasikan dengan variabel <b>S</b>, sedangkan state berikutnya menggunakan abjad kapital.</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            <div v-for="(symbol, state) in stateMapping" :key="'map-'+state" class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-indigo-100 shadow-sm text-sm">
+                                                <span class="font-mono font-bold text-indigo-500">{{ state }}</span>
+                                                <i class="ph ph-arrow-right text-indigo-300"></i>
+                                                <span class="font-black text-slate-800">{{ symbol }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h3 class="font-bold text-lg text-slate-800 border-b pb-2 mb-4">Langkah Ekstraksi Aturan Produksi</h3>
+                                    <div v-for="state in fsa.states" :key="'review-'+state"
+                                         @mouseenter="highlightState('fsa-network', state)" @mouseleave="resetHighlight('fsa-network')" 
+                                         class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm review-card">
+                                        <div class="p-3 font-bold text-sm bg-slate-50 border-b flex justify-between items-center text-slate-700">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded bg-purple-100 text-purple-700 flex items-center justify-center"><i class="ph ph-check-circle"></i></div>
+                                                Evaluasi State {{ state }}
+                                            </div>
+                                            <div class="text-xs bg-white border px-2 py-1 rounded font-mono shadow-sm">
+                                                Variabel: {{ stateMapping[state] }}
+                                            </div>
+                                        </div>
+                                        <div class="p-4">
+                                            <ul class="space-y-3 mb-5 text-sm text-slate-600">
+                                                <li v-for="(detail, i) in fsaExplanations[state]" :key="i" class="flex items-start gap-2">
+                                                    <i class="ph ph-caret-right text-purple-500 mt-0.5 shrink-0"></i>
+                                                    <span v-html="detail" class="leading-relaxed"></span>
+                                                </li>
+                                                <li v-if="!fsaExplanations[state] || fsaExplanations[state].length === 0" class="italic text-slate-400">Tidak ada penjelasan transisi untuk state ini.</li>
+                                            </ul>
+                                            <p class="text-xs text-slate-400 mb-2 uppercase tracking-wide font-bold">Hasil Akhir State {{ state }}</p>
+                                            <div class="font-mono text-base bg-purple-50 p-3 border border-purple-100 rounded-lg shadow-inner flex flex-wrap gap-2 items-center text-purple-900 min-h-[46px]">
+                                                <span class="font-black opacity-50 select-none">{{ stateMapping[state] }} &rarr; </span>
+                                                <span>{{ formalCorrectAnswers[state].join(' | ') || 'Himpunan Kosong (∅)' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </transition>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 2: REG2FSA VIEW ==================== -->
+                <div v-else-if="gameState === 'REG2FSA_VIEW'" key="reg2fsa_view" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6 items-start">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4 w-full">
+                        <h2 class="text-2xl font-black text-indigo-900 flex items-center gap-2"><i class="ph ph-arrows-merge text-indigo-600"></i> Aturan Produksi ke Graf FSA</h2>
+                    </div>
+                    <div class="flex flex-col lg:flex-row gap-6 items-start w-full">
+                        <div class="lg:w-1/2 w-full">
+                            <transition name="fade" mode="out-in">
+                                <div v-if="!showExplanation" key="editor_reg2fsa" class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 border-b pb-4">
+                                        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i class="ph ph-pencil-simple text-indigo-600"></i> Editor Tata Bahasa</h3>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <button @click="loadRegPreset('lat9-3')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition shadow-sm border border-slate-200">lat9-3</button>
+                                            <button @click="loadRegPreset('lat9-4')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition shadow-sm border border-slate-200">lat9-4</button>
+                                            <button @click="loadRegPreset('lat9-5')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition shadow-sm border border-slate-200">lat9-5</button>
+                                            <button @click="randomizeReg()" class="px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-xs font-bold rounded-lg transition flex items-center gap-1 shadow-sm">
+                                                <i class="ph ph-arrows-clockwise"></i> Acak Aturan
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-xs sm:text-sm text-indigo-900 leading-relaxed shadow-sm mb-5">
+                                        <span class="font-bold">Format Penulisan (Pisahkan dengan <code class="bg-white px-1 py-0.5 rounded shadow-sm border border-indigo-200">|</code>):</span>
+                                        <ul class="list-disc pl-5 mt-1 space-y-1">
+                                            <li>Terminal + Variabel (Misal: <b>aA</b>)</li>
+                                            <li>Rantai Terminal (Misal: <b>abaS</b>)</li>
+                                            <li>Terminal Tunggal (Misal: <b>b</b>)</li>
+                                            <li>Kosong/Epsilon (Gunakan tombol <b>&epsilon;</b>)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin">
+                                        <div v-for="(rule, idx) in regRules" :key="'reg-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-indigo-300 transition-all">
+                                            <div class="flex items-center gap-3">
+                                                <input type="text" v-model="rule.variable" class="w-14 h-12 bg-indigo-100 text-indigo-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-indigo-400 uppercase" maxlength="1" :disabled="idx === 0">
+                                                <div class="font-bold text-slate-400 text-xl">&rarr;</div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <input type="text" v-model="rule.productions" class="w-full bg-transparent outline-none text-lg font-mono font-bold text-slate-700 placeholder:text-slate-300" placeholder="e.g: aA | b">
+                                            </div>
+                                            <div class="flex gap-2 shrink-0">
+                                                <button @click="insertRegEpsilon(idx)" class="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold transition border shadow-sm" title="Sisipkan Epsilon">&epsilon;</button>
+                                                <button v-if="idx > 0" @click="removeRegRule(idx)" class="w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-bold transition border border-red-200 shadow-sm"><i class="ph ph-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button @click="addRegRule()" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                                        <i class="ph ph-plus-circle"></i> Tambah Variabel
+                                    </button>
+                                    <button @click="showRegGraph()" class="mt-8 w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-lg">
+                                        <i class="ph ph-eye"></i> Tampilkan Pembahasan
+                                    </button>
+                                </div>
+                                <div v-else key="explanation_reg2fsa" class="space-y-4">
+                                    <button @click="showExplanation = false" class="mb-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg shadow-sm border border-slate-200 transition flex items-center gap-2 text-sm w-fit">
+                                        <i class="ph ph-arrow-left text-lg"></i> Kembali ke Editor
+                                    </button>
+                                    <h3 class="font-bold text-lg text-slate-800 border-b pb-2 mb-4">Langkah Konversi Aturan Produksi ke Graph</h3>
+                                    <div v-for="(ruleInfo, index) in detailedExplanations" :key="'reg-review-'+index"
+                                         @mouseenter="highlightState('reg2fsa-network', ruleInfo.rawStateId)" @mouseleave="resetHighlight('reg2fsa-network')" 
+                                         class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm review-card hover:border-indigo-400">
+                                        <div class="p-3 font-bold text-sm bg-slate-50 border-b flex justify-between items-center text-slate-700">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center"><i class="ph ph-check-circle"></i></div>
+                                                Evaluasi Variabel {{ ruleInfo.variable }} (State <span v-html="ruleInfo.qStateHTML"></span>)
+                                            </div>
+                                        </div>
+                                        <div class="p-4">
+                                            <ul class="space-y-3 mb-2 text-sm text-slate-600">
+                                                <li v-for="(detail, i) in ruleInfo.steps" :key="i" class="flex items-start gap-2">
+                                                    <i class="ph ph-caret-right text-indigo-500 mt-0.5 shrink-0"></i>
+                                                    <span v-html="detail" class="leading-relaxed"></span>
+                                                </li>
+                                                <li v-if="ruleInfo.steps.length === 0" class="italic opacity-50">Variabel ini kosong atau format aturannya salah.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </transition>
+                        </div>
+                        <div class="lg:w-1/2 w-full flex flex-col lg:sticky top-6">
+                            <transition name="fade" mode="out-in">
+                                <div v-if="!showExplanation" key="locked_reg2fsa" class="h-[500px] bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center p-8 text-center">
+                                    <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                                        <i class="ph ph-lock-key text-4xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Visualisasi Disembunyikan</h3>
+                                    <p class="text-slate-500 mb-8 max-w-sm">Graf FSA akan ditampilkan di sini setelah Anda mengklik tombol <b>Tampilkan Pembahasan</b> di sebelah kiri.</p>
+                                </div>
+                                <div v-else key="graph_reg2fsa" class="flex flex-col bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden h-[500px]">
+                                    <div class="bg-slate-800 text-white p-3 font-bold text-sm flex items-center gap-2 justify-between">
+                                        <span class="flex items-center gap-2"><i class="ph ph-graph text-indigo-400"></i> Visualisasi Hasil Konversi Automata</span>
+                                        <span class="text-xs font-normal text-slate-400"><i class="ph ph-hand-pointing"></i> Interaktif</span>
+                                    </div>
+                                    <div class="flex-1 relative bg-white">
+                                        <div id="reg2fsa-network" class="w-full h-full absolute inset-0"></div>
+                                    </div>
+                                    <div class="bg-slate-100 text-slate-500 text-[11px] sm:text-xs py-2 px-4 flex justify-between border-t border-slate-200 font-medium">
+                                        <span>Drag node untuk menggeser. Scroll untuk zoom.</span>
+                                        <span>Hover step di kiri untuk highlight</span>
+                                    </div>
+                                </div>
+                            </transition>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 3: CFG SETUP ==================== -->
+                <div v-else-if="gameState === 'CFG_SETUP'" key="cfg_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-blue-50 border border-blue-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-blue-900 font-black text-lg flex items-center gap-2"><i class="ph ph-funnel text-xl"></i> Input Context-Free Grammar</h3>
+                            <p class="text-sm text-blue-700 mt-1">Masukkan aturan produksi awal (S adalah Start Symbol). Pisahkan antar cabang dengan simbol `|`.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadCFGPreset('lat10a-1')" class="px-3 py-1.5 bg-white border border-blue-200 text-blue-800 rounded-lg text-xs font-bold shadow-sm hover:bg-blue-100 transition">lat10a-1</button>
+                            <button @click="loadCFGPreset('lat10a-2')" class="px-3 py-1.5 bg-white border border-blue-200 text-blue-800 rounded-lg text-xs font-bold shadow-sm hover:bg-blue-100 transition">lat10a-2</button>
+                            <button @click="loadCFGPreset('lat10a-3')" class="px-3 py-1.5 bg-white border border-blue-200 text-blue-800 rounded-lg text-xs font-bold shadow-sm hover:bg-blue-100 transition">lat10a-3</button>
+                            <button @click="doRandomCFG" class="px-3 py-1.5 bg-indigo-600 border border-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-indigo-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="space-y-3">
+                            <div v-for="(rule, idx) in cfgRules" :key="'cfg-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-blue-300 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="text" :id="'rule-var-'+idx" :name="'rule-var-'+idx" v-model="rule.variable" class="w-14 h-12 bg-blue-100 text-blue-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-blue-400 uppercase" maxlength="1" :disabled="idx === 0">
+                                    <div class="font-bold text-slate-400 text-xl">&rarr;</div>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="text" :id="'rule-prod-'+idx" :name="'rule-prod-'+idx" v-model="rule.productions" class="w-full bg-transparent outline-none text-lg font-mono font-bold text-slate-700 placeholder:text-slate-300" placeholder="Contoh: aA | b | &epsilon;">
+                                </div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button @click="insertCFGEpsilon(idx)" class="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold transition border shadow-sm" title="Sisipkan Epsilon">&epsilon;</button>
+                                    <button v-if="idx > 0" @click="removeCFGRule(idx)" class="w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-bold transition border border-red-200 shadow-sm"><i class="ph ph-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="addCFGRule" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                            <i class="ph ph-plus-circle"></i> Tambah Variabel
+                        </button>
+                    </div>
+                    <button @click="simplifyCFG" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i class="ph ph-magic-wand"></i> Sederhanakan Grammar
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 3: CFG REVIEW ==================== -->
+                <div v-else-if="gameState === 'CFG_REVIEW'" key="cfg_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-blue-900 flex items-center gap-2"><i class="ph ph-list-checks text-blue-600"></i> Hasil Penyederhanaan CFG</h2>
+                        <button @click="goToCFG" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Edit Grammar
+                        </button>
+                    </div>
+                    <div class="space-y-8">
+                        <div v-for="(step, index) in cfgResultSteps" :key="'cfg-step-'+index" class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="bg-slate-800 text-white p-4 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 text-white font-black flex items-center justify-center shadow-inner">{{index}}</div>
+                                <h3 class="font-bold text-lg">{{step.title}}</h3>
+                            </div>
+                            <div class="p-5 md:p-6">
+                                <p class="text-slate-600 text-sm md:text-base mb-4 pb-4 border-b border-slate-200" v-html="step.desc"></p>
+                                <div v-if="step.details && step.details.length > 0" class="mb-6 bg-white p-4 rounded-xl border border-blue-100 shadow-sm">
+                                    <ul class="space-y-3 text-sm text-slate-700">
+                                        <li v-for="(detail, di) in step.details" :key="'detail-'+di" class="flex items-start gap-2">
+                                            <i class="ph ph-info text-blue-500 mt-0.5 shrink-0"></i>
+                                            <span v-html="detail" class="leading-relaxed"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div v-for="(prods, v) in step.grammar" :key="'gr-'+index+'-'+v" class="flex items-center gap-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                        <div class="w-12 h-12 bg-blue-50 text-blue-900 font-black flex items-center justify-center rounded-lg text-lg shadow-inner border border-blue-100 shrink-0">
+                                            {{ v }}
+                                        </div>
+                                        <div class="font-bold text-slate-400 text-xl shrink-0">&rarr;</div>
+                                        <div class="font-mono text-lg font-bold text-slate-800">
+                                            {{ prods.length > 0 ? prods.join(' | ') : '<Himpunan Kosong>' }}
+                                        </div>
+                                    </div>
+                                    <div v-if="Object.keys(step.grammar).length === 0" class="text-slate-500 italic p-3 bg-white border rounded-xl text-center">Grammar kosong / semua produksi dihilangkan.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 4: DERIVATION SETUP ==================== -->
+                <div v-else-if="gameState === 'DERIVATION_SETUP'" key="derivation_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-emerald-900 font-black text-lg flex items-center gap-2"><i class="ph ph-tree-structure text-xl"></i> Parsing & Derivation Tree</h3>
+                            <p class="text-sm text-emerald-700 mt-1">Masukkan CFG dan Target String. Kosongkan target string dan klik Lakukan Parsing untuk membiarkan sistem mencari untai ambigu secara otomatis.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadDerivationPreset('lat10b')" class="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-800 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-100 transition">Soal Latihan 10b</button>
+                            <button @click="doRandomDerivation" class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="flex-[2] bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Aturan Produksi</label>
+                            <div class="space-y-3">
+                                <div v-for="(rule, idx) in derivRules" :key="'der-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-emerald-300 transition-all">
+                                    <div class="flex items-center gap-3">
+                                        <input type="text" v-model="rule.variable" class="w-14 h-12 bg-emerald-100 text-emerald-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-emerald-400 uppercase" maxlength="1" :disabled="idx === 0">
+                                        <div class="font-bold text-slate-400 text-xl">&rarr;</div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="text" v-model="rule.productions" class="w-full bg-transparent outline-none text-lg font-mono font-bold text-slate-700 placeholder:text-slate-300" placeholder="Contoh: aA | b">
+                                    </div>
+                                    <div class="flex gap-2 shrink-0">
+                                        <button @click="insertDerivEpsilon(idx)" class="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold transition border shadow-sm" title="Sisipkan Epsilon">&epsilon;</button>
+                                        <button v-if="idx > 0" @click="removeDerivRule(idx)" class="w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-bold transition border border-red-200 shadow-sm"><i class="ph ph-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button @click="addDerivRule()" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                                <i class="ph ph-plus-circle"></i> Tambah Variabel
+                            </button>
+                        </div>
+                        <div class="flex-1 bg-emerald-50 border border-emerald-200 rounded-xl p-5 shadow-sm flex flex-col justify-center text-center">
+                            <label class="block text-sm font-bold text-emerald-900 uppercase tracking-wide mb-3">Target String (Untai)</label>
+                            <div class="mb-4 bg-emerald-100 text-emerald-800 p-3 rounded-lg text-sm flex items-start gap-2 shadow-sm border border-emerald-200 text-left leading-relaxed">
+                                <i class="ph ph-lightbulb mt-0.5 text-lg shrink-0"></i>
+                                <p><b>Tips:</b> Kosongkan input di bawah ini lalu klik tombol Lakukan Parsing untuk membiarkan sistem <b>mencari untai ambigu secara otomatis.</b></p>
+                            </div>
+                            <input type="text" v-model="targetString" class="w-full bg-white border-2 border-emerald-300 rounded-xl px-4 py-4 text-center text-xl font-mono font-bold text-slate-800 focus:ring-4 focus:ring-emerald-200 outline-none transition shadow-inner mb-4" placeholder="(Kosongkan u/ cari Ambigu)">
+                            <p class="text-xs text-emerald-700">Sistem akan membuktikan untai melalui <i>leftmost</i> dan <i>rightmost derivation</i>.</p>
+                        </div>
+                    </div>
+                    <button @click="solveDerivation" :disabled="isCalculating" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i v-if="!isCalculating" class="ph ph-magic-wand"></i>
+                        <i v-else class="ph ph-spinner animate-spin"></i>
+                        {{ isCalculating ? 'Menganalisis Parsing...' : (targetString.trim() === '' ? 'Cari String Ambigu Otomatis' : 'Lakukan Parsing & Cek Ambiguitas') }}
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 4: DERIVATION REVIEW ==================== -->
+                <div v-else-if="gameState === 'DERIVATION_REVIEW'" key="derivation_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-emerald-900 flex items-center gap-2"><i class="ph ph-tree-structure text-emerald-600"></i> Hasil Derivation & Parsing Tree</h2>
+                        <button @click="goToDerivation" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Edit Soal
+                        </button>
+                    </div>
+                    <div v-if="derivationResult && (derivationResult.success || derivationResult.isFallback)">
+                        <div v-if="derivationResult.isFallback" class="mb-6 p-5 rounded-xl shadow-sm bg-orange-50 border border-orange-200 text-orange-800">
+                            <h3 class="font-black text-xl mb-2 flex items-center gap-2">
+                                <i class="ph ph-warning"></i> Target String Ditolak
+                            </h3>
+                            <p class="text-sm">Untai <b>"{{ derivationResult.originalString }}"</b> tidak dapat dibentuk oleh aturan tata bahasa ini (ditolak). Namun, karena aturan CFG yang valid tetap dapat digambarkan pohonnya, berikut adalah contoh penurunan untuk untai <b>"{{ derivationResult.actualString === '' ? '&epsilon;' : derivationResult.actualString }}"</b> yang secara acak berhasil dibentuk sebagai referensi Tree.</p>
+                        </div>
+                        <div v-else class="mb-6 p-5 rounded-xl shadow-sm" :class="derivationResult.isAmbiguous ? 'bg-red-50 border border-red-200 text-red-800' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'">
+                            <h3 class="font-black text-xl mb-2 flex items-center gap-2">
+                                <i :class="derivationResult.isAmbiguous ? 'ph-warning' : 'ph-check-circle'"></i>
+                                Kesimpulan: {{ derivationResult.isAmbiguous ? 'Grammar Bersifat AMBIGU!' : 'Grammar TIDAK Ambigu' }}
+                            </h3>
+                            <p v-if="derivationResult.isAmbiguous" class="text-sm">Berdasarkan hasil parsing, ditemukan lebih dari satu <b>({{ derivationResult.leftmostPaths.length }})</b> cara penurunan terkiri (<i>Leftmost Derivation</i>) yang berbeda secara struktur untuk menghasilkan untai <b>"{{ targetString }}"</b>. Ini secara definitif membuktikan bahwa Tata Bahasa Bebas Konteks (CFG) ini bersifat ambigu.</p>
+                            <p v-else class="text-sm">Hanya ditemukan tepat satu jalur penurunan untuk menghasilkan untai <b>"{{ targetString }}"</b>. Tidak ada indikasi ambiguitas pada pembentukan untai ini.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-slate-50 p-5 border border-slate-200 rounded-xl shadow-sm overflow-x-auto">
+                                <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">Leftmost Derivation <span v-if="derivationResult.isAmbiguous">1</span> <span class="font-normal text-xs text-slate-500">(Penurunan Kiri)</span></h4>
+                                <div class="font-mono text-sm space-y-3">
+                                    <div v-for="(step, idx) in derivationResult.leftmostPaths[0]" :key="'lm-'+idx" class="flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <span v-if="idx > 0" class="text-emerald-500">&rArr;</span>
+                                            <span v-html="step.form === '' ? '&epsilon;' : step.form" class="font-bold text-slate-700 text-base bg-white px-2 py-1 rounded border shadow-sm"></span>
+                                        </div>
+                                        <div v-if="idx > 0" class="text-xs text-slate-500 mt-1 ml-6 border-l-2 border-slate-200 pl-2"><span v-html="step.desc"></span></div>
+                                        <div v-else class="text-xs text-slate-500 mt-1 ml-2">Kondisi Awal (Start Symbol)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-slate-50 p-5 border border-slate-200 rounded-xl shadow-sm overflow-x-auto">
+                                <h4 class="font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">
+                                    <span>Rightmost Derivation <span class="font-normal text-xs text-slate-500">(Penurunan Kanan)</span></span>
+                                </h4>
+                                <div class="font-mono text-sm space-y-3" v-if="derivationResult.rightmostPaths.length > 0">
+                                    <div v-for="(step, idx) in derivationResult.rightmostPaths[0]" :key="'rm-'+idx" class="flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <span v-if="idx > 0" class="text-emerald-500">&rArr;</span>
+                                            <span v-html="step.form === '' ? '&epsilon;' : step.form" class="font-bold text-slate-700 text-base bg-white px-2 py-1 rounded border shadow-sm"></span>
+                                        </div>
+                                        <div v-if="idx > 0" class="text-xs text-slate-500 mt-1 ml-6 border-l-2 border-slate-200 pl-2"><span v-html="step.desc"></span></div>
+                                        <div v-else class="text-xs text-slate-500 mt-1 ml-2">Kondisi Awal (Start Symbol)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="derivationResult.isAmbiguous && derivationResult.leftmostPaths.length > 1" class="lg:col-span-2 bg-red-50 p-5 border border-red-200 rounded-xl shadow-sm overflow-x-auto">
+                                <h4 class="font-bold text-red-800 mb-4 border-b border-red-200 pb-2 flex items-center gap-2">
+                                    <i class="ph ph-warning"></i> Leftmost Derivation 2 <span class="font-normal text-xs text-red-600">(Jalur Alternatif - Bukti Ambiguitas)</span>
+                                </h4>
+                                <div class="font-mono text-sm space-y-3">
+                                    <div v-for="(step, idx) in derivationResult.leftmostPaths[1]" :key="'lm2-'+idx" class="flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <span v-if="idx > 0" class="text-red-500">&rArr;</span>
+                                            <span v-html="step.form === '' ? '&epsilon;' : step.form" class="font-bold text-red-900 text-base bg-white px-2 py-1 rounded border shadow-sm"></span>
+                                        </div>
+                                        <div v-if="idx > 0" class="text-xs text-red-600 mt-1 ml-6 border-l-2 border-red-200 pl-2"><span v-html="step.desc"></span></div>
+                                        <div v-else class="text-xs text-red-600 mt-1 ml-2">Kondisi Awal (Start Symbol)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="font-bold text-xl mt-8 mb-4 flex items-center gap-2"><i class="ph ph-tree-structure text-emerald-600"></i> Visualisasi Derivation Tree</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div v-if="derivationResult.leftTree" class="bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                                <div class="bg-slate-800 text-white p-3 font-bold text-sm flex justify-between">
+                                    <span>Leftmost Derivation Tree <span v-if="derivationResult.isAmbiguous">1</span></span>
+                                </div>
+                                <div id="tree-network-leftmost" class="w-full h-[400px] bg-white cursor-grab active:cursor-grabbing"></div>
+                            </div>
+                            <div v-if="derivationResult.rightTree" class="bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                                <div class="bg-slate-800 text-white p-3 font-bold text-sm flex justify-between">
+                                    <span>Rightmost Derivation Tree</span>
+                                </div>
+                                <div id="tree-network-rightmost" class="w-full h-[400px] bg-white cursor-grab active:cursor-grabbing"></div>
+                            </div>
+                            <div v-if="derivationResult.isAmbiguous && derivationResult.altTree" class="bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col lg:col-span-2">
+                                <div class="bg-red-800 text-white p-3 font-bold text-sm flex justify-between">
+                                    <span>Leftmost Derivation Tree 2 (Bukti Ambiguitas)</span>
+                                    <span class="text-xs bg-red-500 px-2 py-0.5 rounded">Ambigu</span>
+                                </div>
+                                <div id="tree-network-alt" class="w-full h-[400px] bg-white cursor-grab active:cursor-grabbing"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else-if="derivationResult && !derivationResult.success && !derivationResult.isFallback">
+                        <div class="bg-red-50 text-red-800 p-8 rounded-xl border border-red-200 shadow-sm text-center">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="ph ph-x text-3xl"></i></div>
+                            <h3 class="font-black text-2xl mb-2">Pencarian Gagal / Ditolak</h3>
+                            <p class="max-w-xl mx-auto" v-html="derivationResult.reason || `Tidak dapat menemukan cara untuk membentuk untai <b>&quot;${targetString}&quot;</b> dari Grammar yang diberikan. Algoritma telah melakukan <i>pruning</i> sedalam batas maksimal dan menyimpulkan bahwa string ini ditolak oleh tata bahasa tersebut.`"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 5: CNF SETUP ==================== -->
+                <div v-else-if="gameState === 'CNF_SETUP'" key="cnf_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-orange-50 border border-orange-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-orange-900 font-black text-lg flex items-center gap-2"><i class="ph ph-brackets-angle text-xl"></i> Input Context-Free Grammar</h3>
+                            <p class="text-sm text-orange-700 mt-1">Masukkan CFG bebas epsilon dan unit untuk diubah ke CNF.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadCNFPreset('lat11a-1')" class="px-3 py-1.5 bg-white border border-orange-200 text-orange-800 rounded-lg text-xs font-bold shadow-sm hover:bg-orange-100 transition">lat11a-1</button>
+                            <button @click="loadCNFPreset('lat11a-2')" class="px-3 py-1.5 bg-white border border-orange-200 text-orange-800 rounded-lg text-xs font-bold shadow-sm hover:bg-orange-100 transition">lat11a-2</button>
+                            <button @click="doRandomCNF" class="px-3 py-1.5 bg-orange-600 border border-orange-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-orange-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="space-y-3">
+                            <div v-for="(rule, idx) in cnfRules" :key="'cnf-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-orange-300 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="text" :id="'cnf-var-'+idx" :name="'cnf-var-'+idx" v-model="rule.variable" class="w-14 h-12 bg-orange-100 text-orange-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-orange-400 uppercase" maxlength="1" :disabled="idx === 0">
+                                    <div class="font-bold text-slate-400 text-xl">&rarr;</div>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="text" :id="'cnf-prod-'+idx" :name="'cnf-prod-'+idx" v-model="rule.productions" class="w-full bg-transparent outline-none text-lg font-mono font-bold text-slate-700 placeholder:text-slate-300" placeholder="Contoh: aA | b">
+                                </div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button v-if="idx > 0" @click="removeCNFRule(idx)" class="w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-bold transition border border-red-200 shadow-sm"><i class="ph ph-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="addCNFRule" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                            <i class="ph ph-plus-circle"></i> Tambah Variabel
+                        </button>
+                    </div>
+
+                    <button @click="solveCNF" class="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i class="ph ph-magic-wand"></i> Konversi ke CNF
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 5: CNF REVIEW ==================== -->
+                <div v-else-if="gameState === 'CNF_REVIEW'" key="cnf_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-orange-900 flex items-center gap-2"><i class="ph ph-brackets-angle text-orange-600"></i> Hasil Konversi Chomsky (CNF)</h2>
+                        <button @click="goToCNF" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Edit Grammar
+                        </button>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div v-for="(step, index) in cnfResultSteps" :key="'cnf-step-'+index" class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="bg-slate-800 text-white p-4 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-orange-500 text-white font-black flex items-center justify-center shadow-inner">{{index}}</div>
+                                <h3 class="font-bold text-lg">{{step.title}}</h3>
+                            </div>
+                            <div class="p-5 md:p-6">
+                                <p class="text-slate-600 text-sm md:text-base mb-4 pb-4 border-b border-slate-200" v-html="step.desc"></p>
+                                
+                                <div v-if="step.details && step.details.length > 0" class="mb-6 bg-white p-4 rounded-xl border border-orange-100 shadow-sm">
+                                    <ul class="space-y-4 text-sm text-slate-700">
+                                        <li v-for="(detail, di) in step.details" :key="'detail-'+di" class="flex items-start gap-2">
+                                            <i class="ph ph-info text-orange-500 mt-0.5 shrink-0"></i>
+                                            <span v-html="detail" class="leading-relaxed"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="flex flex-col gap-3 w-full">
+                                    <div v-for="(prods, v) in step.grammar" :key="'gr-'+index+'-'+v" class="flex items-center gap-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm overflow-x-auto w-full">
+                                        <div class="w-auto px-4 h-12 bg-orange-50 text-orange-900 font-black flex items-center justify-center rounded-lg text-lg shadow-inner border border-orange-100 shrink-0 sticky left-0 z-10">
+                                            <span v-html="v"></span>
+                                        </div>
+                                        <div class="font-bold text-slate-400 text-xl shrink-0">&rarr;</div>
+                                        <div class="font-mono text-lg font-bold text-slate-800 whitespace-nowrap min-w-max pr-4">
+                                            <span v-html="prods.length > 0 ? prods.join(' <span class=\'text-slate-300 font-normal px-2\'>|</span> ') : '&lt;Himpunan Kosong&gt;'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 6: LEFT REC SETUP ==================== -->
+                <div v-else-if="gameState === 'LEFTREC_SETUP'" key="leftrec_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-rose-50 border border-rose-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-rose-900 font-black text-lg flex items-center gap-2"><i class="ph ph-arrow-u-up-left text-xl"></i> Input Context-Free Grammar</h3>
+                            <p class="text-sm text-rose-700 mt-1">Masukkan CFG untuk menghilangkan produksi rekursif kirinya (A &rarr; A&alpha;).</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadLRPreset('lat11b-1')" class="px-3 py-1.5 bg-white border border-rose-200 text-rose-800 rounded-lg text-xs font-bold shadow-sm hover:bg-rose-100 transition">lat11b-1</button>
+                            <button @click="loadLRPreset('lat11b-2')" class="px-3 py-1.5 bg-white border border-rose-200 text-rose-800 rounded-lg text-xs font-bold shadow-sm hover:bg-rose-100 transition">lat11b-2</button>
+                            <button @click="loadLRPreset('lat11b-3')" class="px-3 py-1.5 bg-white border border-rose-200 text-rose-800 rounded-lg text-xs font-bold shadow-sm hover:bg-rose-100 transition">lat11b-3</button>
+                            <button @click="loadLRPreset('lat11b-4')" class="px-3 py-1.5 bg-white border border-rose-200 text-rose-800 rounded-lg text-xs font-bold shadow-sm hover:bg-rose-100 transition">lat11b-4</button>
+                            <button @click="doRandomLR" class="px-3 py-1.5 bg-rose-600 border border-rose-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-rose-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="space-y-3">
+                            <div v-for="(rule, idx) in lrRules" :key="'lr-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-rose-300 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="text" :id="'lr-var-'+idx" :name="'lr-var-'+idx" v-model="rule.variable" class="w-14 h-12 bg-rose-100 text-rose-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-rose-400 uppercase" maxlength="1" :disabled="idx === 0">
+                                    <div class="font-bold text-slate-400 text-xl">&rarr;</div>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="text" :id="'lr-prod-'+idx" :name="'lr-prod-'+idx" v-model="rule.productions" class="w-full bg-transparent outline-none text-lg font-mono font-bold text-slate-700 placeholder:text-slate-300" placeholder="Contoh: Aa | b">
+                                </div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button v-if="idx > 0" @click="removeLRRule(idx)" class="w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-bold transition border border-red-200 shadow-sm"><i class="ph ph-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="addLRRule" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                            <i class="ph ph-plus-circle"></i> Tambah Variabel
+                        </button>
+                    </div>
+
+                    <button @click="solveLR" class="w-full py-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i class="ph ph-magic-wand"></i> Hilangkan Rekursif Kiri
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 6: LEFT REC REVIEW ==================== -->
+                <div v-else-if="gameState === 'LEFTREC_REVIEW'" key="leftrec_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-rose-900 flex items-center gap-2"><i class="ph ph-arrow-u-up-left text-rose-600"></i> Hasil Penghilangan Rekursif Kiri</h2>
+                        <button @click="goToLeftRec" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Edit Grammar
+                        </button>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div v-for="(step, index) in lrResultSteps" :key="'lr-step-'+index" class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="bg-slate-800 text-white p-4 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-rose-500 text-white font-black flex items-center justify-center shadow-inner"><i class="ph ph-list-numbers text-xl"></i></div>
+                                <h3 class="font-bold text-lg">{{step.title}}</h3>
+                            </div>
+                            <div class="p-5 md:p-6">
+                                <p class="text-slate-600 text-sm md:text-base mb-4 pb-4 border-b border-slate-200" v-html="step.desc"></p>
+                                
+                                <div v-if="step.details && step.details.length > 0" class="mb-6 bg-white p-4 rounded-xl border border-rose-100 shadow-sm">
+                                    <div class="space-y-4 text-sm text-slate-700">
+                                        <div v-for="(detail, di) in step.details" :key="'detail-'+di" class="flex items-start gap-2">
+                                            <i class="ph ph-info text-rose-500 mt-1 shrink-0"></i>
+                                            <div v-html="detail" class="leading-relaxed w-full"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col gap-3 w-full">
+                                    <div v-for="(prods, v) in step.grammar" :key="'gr-'+index+'-'+v" class="flex items-center gap-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm overflow-x-auto w-full">
+                                        <div class="w-auto px-4 h-12 bg-rose-50 text-rose-900 font-black flex items-center justify-center rounded-lg text-lg shadow-inner border border-rose-100 shrink-0 sticky left-0 z-10">
+                                            <span v-html="v"></span>
+                                        </div>
+                                        <div class="font-bold text-slate-400 text-xl shrink-0">&rarr;</div>
+                                        <div class="font-mono text-lg font-bold text-slate-800 whitespace-nowrap min-w-max pr-4">
+                                            <span v-html="prods.length > 0 ? prods.join(' <span class=\'text-slate-300 font-normal px-2\'>|</span> ') : '&lt;Himpunan Kosong&gt;'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 7: GNF SETUP ==================== -->
+                <div v-else-if="gameState === 'GNF_SETUP'" key="gnf_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-teal-50 border border-teal-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-teal-900 font-black text-lg flex items-center gap-2"><i class="ph ph-text-columns text-xl"></i> Input CFG (Bentuk Normal Greibach)</h3>
+                            <p class="text-sm text-teal-700 mt-1">Masukkan urutan Grammar untuk dikonversi menjadi GNF.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadGNFPreset('lat12-1')" class="px-3 py-1.5 bg-white border border-teal-200 text-teal-800 rounded-lg text-xs font-bold shadow-sm hover:bg-teal-100 transition">lat12-1</button>
+                            <button @click="loadGNFPreset('lat12-2')" class="px-3 py-1.5 bg-white border border-teal-200 text-teal-800 rounded-lg text-xs font-bold shadow-sm hover:bg-teal-100 transition">lat12-2</button>
+                            <button @click="loadGNFPreset('lat12-3')" class="px-3 py-1.5 bg-white border border-teal-200 text-teal-800 rounded-lg text-xs font-bold shadow-sm hover:bg-teal-100 transition">lat12-3</button>
+                            <button @click="loadGNFPreset('lat12-4')" class="px-3 py-1.5 bg-white border border-teal-200 text-teal-800 rounded-lg text-xs font-bold shadow-sm hover:bg-teal-100 transition">lat12-4</button>
+                            <button @click="loadGNFPreset('lat15-1')" class="px-3 py-1.5 bg-white border border-teal-200 text-teal-800 rounded-lg text-xs font-bold shadow-sm hover:bg-teal-100 transition">Soal 15-1</button>
+                            <button @click="doRandomGNF" class="px-3 py-1.5 bg-teal-600 border border-teal-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-teal-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="space-y-3">
+                            <div v-for="(rule, idx) in gnfRules" :key="'gnf-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-teal-300 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="text" :id="'gnf-var-'+idx" :name="'gnf-var-'+idx" v-model="rule.variable" class="w-14 h-12 bg-teal-100 text-teal-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-teal-400 uppercase" maxlength="1" :disabled="idx === 0">
+                                    <div class="font-bold text-slate-400 text-xl">&rarr;</div>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="text" :id="'gnf-prod-'+idx" :name="'gnf-prod-'+idx" v-model="rule.productions" class="w-full bg-transparent outline-none text-lg font-mono font-bold text-slate-700 placeholder:text-slate-300" placeholder="Contoh: aA | b">
+                                </div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button v-if="idx > 0" @click="removeGNFRule(idx)" class="w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-bold transition border border-red-200 shadow-sm"><i class="ph ph-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="addGNFRule" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                            <i class="ph ph-plus-circle"></i> Tambah Variabel
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 w-full">
+                        <button @click="solveGNF('substitution')" class="flex-1 py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                            <i class="ph ph-magic-wand"></i> Konversi (Metode Substitusi)
+                        </button>
+                        <button @click="solveGNF('matrix')" class="flex-1 py-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                            <i class="ph ph-grid-four"></i> Konversi (Metode Matriks)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 7: GNF REVIEW ==================== -->
+                <div v-else-if="gameState === 'GNF_REVIEW'" key="gnf_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-teal-900 flex items-center gap-2">
+                            <i class="ph ph-text-columns text-teal-600"></i> Hasil GNF <span class="ml-2 px-2 py-1 bg-teal-100 text-teal-800 text-sm rounded border border-teal-200 capitalize">(Metode: {{ gnfMethodUsed }})</span>
+                        </h2>
+                        <button @click="goToGNF" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Edit Grammar
+                        </button>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div v-for="(step, index) in gnfResultSteps" :key="'gnf-step-'+index" class="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div class="bg-slate-800 text-white p-4 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-teal-500 text-white font-black flex items-center justify-center shadow-inner">{{index}}</div>
+                                <h3 class="font-bold text-lg">{{step.title}}</h3>
+                            </div>
+                            <div class="p-5 md:p-6">
+                                <p class="text-slate-600 text-sm md:text-base mb-4 pb-4 border-b border-slate-200" v-html="step.desc"></p>
+                                
+                                <div v-if="step.details && step.details.length > 0" class="mb-6">
+                                    <div class="space-y-4 text-sm text-slate-700">
+                                        <div v-for="(detail, di) in step.details" :key="'detail-'+di">
+                                            <div v-html="detail" class="leading-relaxed w-full"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col gap-3 w-full" v-if="Object.keys(step.grammar).length > 0">
+                                    <div v-for="(prods, v) in step.grammar" :key="'gr-'+index+'-'+v" class="flex items-center gap-4 bg-white p-3 rounded-xl border border-slate-200 shadow-sm overflow-x-auto w-full">
+                                        <div class="w-auto px-4 h-12 bg-teal-50 text-teal-900 font-black flex items-center justify-center rounded-lg text-lg shadow-inner border border-teal-100 shrink-0 sticky left-0 z-10">
+                                            <span v-html="v"></span>
+                                        </div>
+                                        <div class="font-bold text-slate-400 text-xl shrink-0">&rarr;</div>
+                                        <div class="font-mono text-lg font-bold text-slate-800 whitespace-nowrap min-w-max pr-4">
+                                            <span v-html="prods.length > 0 ? prods.join(' <span class=\'text-slate-300 font-normal px-2\'>|</span> ') : '&lt;Himpunan Kosong&gt;'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 8: PDA CFG SETUP ==================== -->
+                <div v-else-if="gameState === 'PDA_CFG_SETUP'" key="pda_cfg_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-cyan-50 border border-cyan-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-cyan-900 font-black text-lg flex items-center gap-2"><i class="ph ph-stack text-xl"></i> Input Context-Free Grammar</h3>
+                            <p class="text-sm text-cyan-700 mt-1">Masukkan CFG untuk dikonversi menjadi mesin Push Down Automata (PDA).</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadPDACFGPreset('lat13-1')" class="px-3 py-1.5 bg-white border border-cyan-200 text-cyan-800 rounded-lg text-xs font-bold shadow-sm hover:bg-cyan-100 transition">Soal Latihan 13-1</button>
+                            <button @click="loadPDACFGPreset('lat15-2')" class="px-3 py-1.5 bg-white border border-cyan-200 text-cyan-800 rounded-lg text-xs font-bold shadow-sm hover:bg-cyan-100 transition">Soal Latihan 15-2</button>
+                            <button @click="doRandomPDACFG" class="px-3 py-1.5 bg-cyan-600 border border-cyan-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-cyan-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                        <div class="space-y-3">
+                            <div v-for="(rule, idx) in pdaCfgRules" :key="'pda-cfg-'+idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm focus-within:ring-2 focus-within:ring-cyan-300 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="text" v-model="rule.variable" class="w-14 h-12 bg-cyan-100 text-cyan-900 font-black text-center rounded-lg text-lg shadow-inner outline-none focus:ring-2 focus:ring-cyan-400 uppercase" maxlength="1" :disabled="idx === 0">
+                                    <div class="font-bold text-slate-400 text-xl">&rarr;</div>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="text" v-model="rule.productions" class="w-full bg-transparent outline-none text-lg font-mono font-bold text-slate-700 placeholder:text-slate-300" placeholder="Contoh: aA | b">
+                                </div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button v-if="idx > 0" @click="pdaCfgRules.splice(idx, 1)" class="w-10 h-10 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-bold transition border border-red-200 shadow-sm"><i class="ph ph-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button @click="pdaCfgRules.push({variable: '', productions: ''})" class="mt-4 px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition text-sm flex items-center gap-2 shadow-sm border border-slate-300">
+                            <i class="ph ph-plus-circle"></i> Tambah Variabel
+                        </button>
+                    </div>
+                    <button @click="solvePDACFG" class="w-full py-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i class="ph ph-magic-wand"></i> Konstruksi Mesin PDA
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 8: PDA CFG REVIEW ==================== -->
+                <div v-else-if="gameState === 'PDA_CFG_REVIEW'" key="pda_cfg_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-cyan-900 flex items-center gap-2"><i class="ph ph-stack text-cyan-600"></i> Hasil Konstruksi PDA</h2>
+                        <button @click="goToPDACFG" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Edit Grammar
+                        </button>
+                    </div>
+                    <div v-if="pdaCfgResult" class="space-y-6">
+                        
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h3 class="font-bold text-slate-800 mb-4 border-b pb-2 text-lg">Penjelasan Konfigurasi 7-Tuple PDA</h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-4 text-sm text-slate-700 leading-relaxed">
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-cyan-800 bg-cyan-50 px-2 py-1 rounded inline-block mb-1 border border-cyan-100" v-html="`Q (Himpunan State) = { ${pdaCfgResult.Q.map(s=>formatPDA(s)).join(', ')} }`"></div>
+                                    <p class="mt-1">Karena kita menggunakan metode <i>Top-Down Parsing</i>, logika utama dijalankan di dalam Stack, sehingga kita hanya butuh 3 state: <b>q<sub>1</sub></b> untuk persiapan, <b>q<sub>2</sub></b> untuk proses penjabaran & pencocokan berulang, dan <b>q<sub>3</sub></b> untuk penerimaan akhir.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-cyan-800 bg-cyan-50 px-2 py-1 rounded inline-block mb-1 border border-cyan-100">&Sigma; (Alfabet Input) = { {{ pdaCfgResult.Sig.join(', ') }} }</div>
+                                    <p class="mt-1">Merupakan kumpulan seluruh simbol <b>Terminal</b> (huruf kecil) yang dihasilkan oleh tata bahasa. Simbol ini yang akan dicocokkan dengan pita input dari user.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-cyan-800 bg-cyan-50 px-2 py-1 rounded inline-block mb-1 border border-cyan-100" v-html="`&Gamma; (Alfabet Stack) = { ${pdaCfgResult.Gam.map(s=>formatPDA(s)).join(', ')} }`"></div>
+                                    <p class="mt-1">Ini adalah semua simbol yang boleh dimasukkan ke dalam Stack. Terdiri dari <b>Terminal</b>, <b>Variabel</b> (karena kita akan menjabarkannya di stack), ditambah <b>Z<sub>0</sub></b> sebagai penanda batas terbawah stack.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-cyan-800 bg-cyan-50 px-2 py-1 rounded inline-block mb-1 border border-cyan-100">S (State Awal) = q<sub>1</sub></div>
+                                    <p class="mt-1">Titik awal jalannya mesin sebelum memproses input apapun.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-cyan-800 bg-cyan-50 px-2 py-1 rounded inline-block mb-1 border border-cyan-100">Z<sub>0</sub> (Top Stack Awal) = Z<sub>0</sub></div>
+                                    <p class="mt-1">Sebelum string diperiksa, stack tidak sepenuhnya kosong melainkan diisi oleh pondasi penanda Z<sub>0</sub>.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-cyan-800 bg-cyan-50 px-2 py-1 rounded inline-block mb-1 border border-cyan-100">F (Himpunan State Akhir) = { q<sub>3</sub> }</div>
+                                    <p class="mt-1">Untai (string) akan dinyatakan Valid/Diterima jika dan hanya jika mesin berhasil mencapai state penyelesaian ini.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                            <div class="bg-cyan-800 text-white p-4 font-bold text-base border-b border-cyan-900">
+                                Langkah-langkah Pembentukan Fungsi Transisi (&delta;)
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div v-for="(step, index) in pdaCfgResult.transitions" :key="index" class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
+                                    <div class="text-base font-bold text-cyan-700 mb-2 border-b border-cyan-100 pb-2" v-html="step.title"></div>
+                                    <div class="text-sm text-slate-700 mb-4 leading-relaxed" v-html="step.desc"></div>
+                                    <div class="bg-slate-50 border border-slate-200 text-slate-800 p-3 rounded-lg shadow-sm font-mono text-sm leading-relaxed inline-block w-full sm:w-auto">
+                                        <div v-for="(f, fIdx) in step.funcList" :key="'f'+fIdx" v-html="f" class="mb-1 last:mb-0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-indigo-50 border border-indigo-200 rounded-xl overflow-hidden shadow-sm mt-8">
+                            <div class="bg-indigo-800 text-white p-4 font-bold text-base flex items-center gap-2">
+                                <i class="ph ph-check-square-offset text-xl"></i> Ringkasan Hasil PDA
+                            </div>
+                            <div class="p-5 flex flex-col md:flex-row gap-6 items-start">
+                                <div class="flex-1 w-full bg-white p-4 rounded-xl border border-indigo-100 shadow-inner">
+                                    <div class="font-bold text-sm text-indigo-800 mb-3 border-b border-indigo-50 pb-2">Konfigurasi Tuple M = (Q, &Sigma;, &Gamma;, &delta;, S, Z<sub>0</sub>, F)</div>
+                                    <div class="text-sm font-mono text-slate-700 space-y-2">
+                                        <div v-html="`<b>Q</b> = { ${pdaCfgResult.Q.map(s=>formatPDA(s)).join(', ')} }`"></div>
+                                        <div><b>&Sigma;</b> = { {{ pdaCfgResult.Sig.join(', ') }} }</div>
+                                        <div v-html="`<b>&Gamma;</b> = { ${pdaCfgResult.Gam.map(s=>formatPDA(s)).join(', ')} }`"></div>
+                                        <div><b>S</b> = q<sub>1</sub></div>
+                                        <div><b>Z<sub>0</sub></b> = Z<sub>0</sub></div>
+                                        <div><b>F</b> = { q<sub>3</sub> }</div>
+                                    </div>
+                                </div>
+                                <div class="flex-[1.5] w-full bg-white p-4 rounded-xl border border-indigo-100 shadow-inner">
+                                    <div class="font-bold text-sm text-indigo-800 mb-3 border-b border-indigo-50 pb-2">Daftar Lengkap Transisi (&delta;):</div>
+                                    <div class="max-h-64 overflow-y-auto font-mono text-sm text-slate-700 space-y-1.5 scrollbar-thin">
+                                        <template v-for="(step, index) in pdaCfgResult.transitions" :key="'sum-'+index">
+                                            <div v-for="(f, fIdx) in step.funcList" :key="'sumf-'+index+'-'+fIdx" class="border-b border-slate-50 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0" v-html="f"></div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 9: PDA EQ SETUP ==================== -->
+                <div v-else-if="gameState === 'PDA_EQ_SETUP'" key="pda_eq_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-pink-50 border border-pink-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-pink-900 font-black text-lg flex items-center gap-2"><i class="ph ph-arrows-left-right text-xl"></i> Ekuivalensi & Simulasi PDA</h3>
+                            <p class="text-sm text-pink-700 mt-1">Konversikan antar tipe PDA (FS/NS) atau uji/simulasikan penerimaan untai string pada PDA.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadPDAEQPreset('contoh-fs-ns')" class="px-3 py-1.5 bg-white border border-pink-200 text-pink-800 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-100 transition">Contoh: FS &rarr; NS</button>
+                            <button @click="loadPDAEQPreset('lat13-2a')" class="px-3 py-1.5 bg-white border border-pink-200 text-pink-800 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-100 transition">lat13-2a (ke FS)</button>
+                            <button @click="loadPDAEQPreset('lat13-2b')" class="px-3 py-1.5 bg-white border border-pink-200 text-pink-800 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-100 transition">lat13-2b (Membuktikan String)</button>
+                            <button @click="loadPDAEQPreset('lat15-2b')" class="px-3 py-1.5 bg-white border border-pink-200 text-pink-800 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-100 transition">lat15-2b (Uji String CFG)</button>
+                            <button @click="doRandomPDAEQ" class="px-3 py-1.5 bg-pink-600 border border-pink-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-pink-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner space-y-5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Tipe Permasalahan / Soal</label>
+                            <select v-model="eqType" class="w-full sm:w-1/2 bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-pink-400 outline-none shadow-sm text-pink-900">
+                                <option value="FS_TO_NS">Konversi Ekuivalensi: Final State &rarr; Null Stack PDA</option>
+                                <option value="NS_TO_FS">Konversi Ekuivalensi: Null Stack &rarr; Final State PDA</option>
+                                <option value="TEST_STRING">Uji Untai: Simulasikan Penerimaan String pada PDA ini</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="col-span-1 md:col-span-2 border-t pt-4">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Himpunan State (Q)</label>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <div v-for="s in pdaEqConfig.states" :key="'state-'+s" class="flex items-center bg-pink-50 text-pink-800 border border-pink-200 rounded-lg px-3 py-1.5 text-sm font-mono font-bold shadow-sm">
+                                        <span v-html="formatPDA(s)"></span>
+                                        <button @click="removeEqState(s)" class="ml-2 text-pink-400 hover:text-red-500 transition" title="Hapus State" :disabled="pdaEqConfig.states.length <= 1">
+                                            <i class="ph ph-x-circle text-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button @click="addEqState()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded border border-slate-200 shadow-sm transition flex items-center gap-1 font-bold">
+                                    <i class="ph ph-plus"></i> Tambah State
+                                </button>
+                            </div>
+                            
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1">Final States (F) <i class="ph ph-info text-pink-500" title="Kosongkan jika mesin ini bertipe Null Stack"></i></label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label v-for="s in pdaEqConfig.states" :key="'final-'+s" class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-slate-100 transition shadow-sm">
+                                        <input type="checkbox" :value="s" v-model="pdaEqConfig.final" class="w-4 h-4 text-pink-600 border-slate-300 rounded focus:ring-pink-500">
+                                        <span class="text-sm font-mono font-bold text-slate-700" v-html="formatPDA(s)"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Alphabet (&Sigma;) <span class="text-[10px] font-normal lowercase">koma u/ memisahkan</span></label>
+                                <input type="text" v-model="pdaEqConfig.inputAlphabet" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-pink-400 outline-none shadow-sm" placeholder="0, 1">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Stack Alphabet (&Gamma;) <span class="text-[10px] font-normal lowercase">koma u/ memisahkan</span></label>
+                                <input type="text" v-model="pdaEqConfig.stackAlphabet" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-pink-400 outline-none shadow-sm" placeholder="X, Z0">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 col-span-1 md:col-span-2">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Start State (S)</label>
+                                    <select v-model="pdaEqConfig.start" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-pink-400 outline-none shadow-sm">
+                                        <option v-for="s in pdaEqConfig.states" :key="'opt-start-'+s" :value="s" v-html="formatPDA(s)"></option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Start Stack (Z<sub>0</sub>)</label>
+                                    <select v-model="pdaEqConfig.z0" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-pink-400 outline-none shadow-sm">
+                                        <option v-for="s in parsedStackAlphabet" :key="'opt-z0-'+s" :value="s" v-html="formatPDA(s)"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div v-if="eqType === 'TEST_STRING'" class="col-span-1 md:col-span-2 mt-4 bg-pink-100 p-5 rounded-xl border border-pink-300 shadow-inner">
+                                <label class="block text-base font-black text-pink-900 uppercase tracking-wide mb-2 flex items-center gap-2"><i class="ph ph-magnifying-glass text-xl"></i> Uji Coba Penerimaan Untai (String)</label>
+                                <p class="text-sm text-pink-800 mb-3 leading-relaxed">Sistem akan menyimulasikan pergerakan transisi mesin ini secara berurutan untuk membuktikan apakah untai tersebut divalidasi. Kosongkan input di bawah jika ingin menguji penerimaan string kosong (&epsilon;).</p>
+                                <input type="text" v-model="targetStringEq" class="w-full bg-white border-2 border-pink-400 rounded-lg px-4 py-4 text-xl font-mono font-bold text-center focus:ring-4 focus:ring-pink-300 outline-none shadow-sm text-pink-900" placeholder="Contoh input: 001100">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 flex justify-between items-center mt-2">
+                                <span>Transisi Asal (&delta;)</span>
+                                <span class="text-[10px] font-normal lowercase bg-slate-200 px-1.5 py-0.5 rounded text-slate-600">Gunakan '&epsilon;' untuk input/push kosong</span>
+                            </label>
+                            <div class="space-y-2 mb-3 max-h-64 overflow-y-auto pr-2 scrollbar-thin">
+                                <div v-for="(t, idx) in pdaEqConfig.transitions" :key="'eq-t-'+idx" class="flex flex-wrap md:flex-nowrap gap-2 items-center bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-sm font-mono">
+                                    <div class="flex items-center gap-1 w-full md:w-auto flex-1">
+                                        <span class="text-slate-400 font-bold">&delta;(</span>
+                                        <select v-model="t.from" class="w-16 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-pink-400">
+                                            <option v-for="s in pdaEqConfig.states" :key="'t-from-'+idx+'-'+s" :value="s" v-html="formatPDA(s)"></option>
+                                        </select>
+                                        <span>,</span>
+                                        <input type="text" v-model="t.input" class="w-10 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-pink-400" placeholder="in">
+                                        <span>,</span>
+                                        <input type="text" v-model="t.pop" class="w-10 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-pink-400" placeholder="pop">
+                                        <span class="text-slate-400 font-bold">)</span>
+                                    </div>
+                                    <span class="hidden md:inline font-bold text-slate-400 mx-1">= { (</span>
+                                    <div class="flex items-center gap-1 w-full md:w-auto flex-1">
+                                        <span class="md:hidden font-bold text-slate-400 mx-1">= { (</span>
+                                        <select v-model="t.to" class="w-16 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-pink-400">
+                                            <option v-for="s in pdaEqConfig.states" :key="'t-to-'+idx+'-'+s" :value="s" v-html="formatPDA(s)"></option>
+                                        </select>
+                                        <span>,</span>
+                                        <input type="text" v-model="t.push" class="w-16 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-pink-400" placeholder="push">
+                                        <span class="text-slate-400 font-bold">) }</span>
+                                    </div>
+                                    <button @click="t.input='ε'; t.push='ε'" class="px-2 py-1 bg-slate-100 rounded hover:bg-slate-200 text-xs font-bold" title="Epsilon Preset">&epsilon;</button>
+                                    <button @click="removePDATransition(idx)" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded hover:bg-red-100 transition shrink-0"><i class="ph ph-trash"></i></button>
+                                </div>
+                            </div>
+                            <button @click="addPDATransition" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg border border-slate-300 shadow-sm flex items-center justify-center gap-2 transition">
+                                <i class="ph ph-plus"></i> Tambah Transisi
+                            </button>
+                        </div>
+                    </div>
+
+                    <button @click="solvePDAEQ" class="w-full py-4 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i class="ph ph-magic-wand"></i> {{ eqType === 'TEST_STRING' ? 'Jalankan Uji Untai String' : 'Konversi Mesin PDA' }}
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 9: PDA EQ REVIEW ==================== -->
+                <div v-else-if="gameState === 'PDA_EQ_REVIEW'" key="pda_eq_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-pink-900 flex items-center gap-2">
+                            <i class="ph ph-arrows-left-right text-pink-600"></i> 
+                            Hasil {{ simulationResult ? 'Simulasi Uji Untai' : 'Konversi Ekuivalensi PDA' }}
+                        </h2>
+                        <button @click="goToPDAEQ" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Kembali ke Editor
+                        </button>
+                    </div>
+                    
+                    <!-- TAB: UJI UNTAI -->
+                    <div v-if="simulationResult" class="mb-2">
+                        <div class="p-6 rounded-xl shadow-sm border" :class="simulationResult.accepted ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'">
+                            <h3 class="font-black text-2xl mb-3 flex items-center gap-2">
+                                <i :class="simulationResult.accepted ? 'ph-check-circle text-emerald-600' : 'ph-warning text-red-600'"></i>
+                                Status String: {{ simulationResult.accepted ? 'DITERIMA (Accepted)' : 'DITOLAK (Rejected)' }}
+                            </h3>
+                            <p class="text-base mb-6 font-medium" v-if="!simulationResult.accepted">{{ simulationResult.reason }}</p>
+                            
+                            <div class="bg-white p-5 rounded-xl border shadow-inner overflow-hidden">
+                                <h4 class="font-bold text-sm uppercase tracking-wider text-slate-500 mb-4 border-b pb-2">Jejak Komputasi (Trace) Terdetail</h4>
+                                <div class="font-mono text-sm space-y-4 max-h-96 overflow-y-auto scrollbar-thin pr-2">
+                                    <div v-for="(step, idx) in simulationResult.path" :key="'sim-'+idx" class="flex items-start gap-3">
+                                        <span class="bg-slate-100 border text-slate-500 px-2 py-1 rounded-md font-bold text-xs mt-0.5 shrink-0">STEP {{idx}}</span>
+                                        <span v-html="step.desc" class="leading-relaxed block pt-1 w-full"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: KONVERSI PDA -->
+                    <div v-if="pdaEqResult" class="space-y-6">
+                        
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h3 class="font-bold text-slate-800 mb-4 border-b pb-2 text-lg">Konfigurasi PDA Ekuivalen Baru (M<sub>2</sub>)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm text-slate-700 leading-relaxed">
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-pink-800 bg-pink-50 px-2 py-1 rounded inline-block mb-1 border border-pink-100" v-html="`Q' (State Baru) = { ${pdaEqResult.Q_new.map(s=>formatPDA(s)).join(', ')} }`"></div>
+                                    <p class="mt-1">Kita mempertahankan semua state dari mesin lama, namun menambahkan <b>q<sub>s</sub></b> sebagai state persiapan dan <b>q<sub>f</sub></b> sebagai state penerimaan spesifik yang baru.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-pink-800 bg-pink-50 px-2 py-1 rounded inline-block mb-1 border border-pink-100" v-html="`&Gamma;' (Stack Baru) = { ${pdaEqResult.Gam_new.map(s=>formatPDA(s)).join(', ')} }`"></div>
+                                    <p class="mt-1">Semua alfabet stack lama dipertahankan, ditambah simbol baru <b>X</b> yang berfungsi sebagai pelindung atau alarm batas bawah stack.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-pink-800 bg-pink-50 px-2 py-1 rounded inline-block mb-1 border border-pink-100" v-html="`S' (Awal Baru) = ${formatPDA(pdaEqResult.start)}`"></div>
+                                    <p class="mt-1">Mesin diwajibkan selalu mulai dari state persiapan khusus (q<sub>s</sub>) agar pondasi pelindung Stack bisa dibangun lebih dulu.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-pink-800 bg-pink-50 px-2 py-1 rounded inline-block mb-1 border border-pink-100">Z'<sub>0</sub> (Dasar Stack Baru) = X</div>
+                                    <p class="mt-1">Lantai dasar stack bukan lagi Z<sub>0</sub> milik mesin asli, melainkan simbol proteksi X yang kita ciptakan.</p>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div v-if="pdaEqResult.final" class="font-mono font-bold text-pink-800 bg-pink-50 px-2 py-1 rounded inline-block mb-1 border border-pink-100" v-html="`F' (Final Baru) = { ${formatPDA(pdaEqResult.final)} }`"></div>
+                                    <div v-else class="font-mono font-bold text-pink-800 bg-pink-50 px-2 py-1 rounded inline-block mb-1 border border-pink-100">F' = { }</div>
+                                    <p class="mt-1" v-if="pdaEqResult.final">Karena mesin baru ini berbasis Final State, kita menetapkan <b>q<sub>f</sub></b> sebagai satu-satunya tujuan akhir penyelesaian.</p>
+                                    <p class="mt-1" v-else>Mesin Null Stack tidak memiliki Final State. Keberhasilan murni diukur dari habisnya isi Stack di akhir pemrosesan.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                            <div class="bg-pink-800 text-white p-4 font-bold text-base border-b border-pink-900">
+                                Pembentukan Fungsi Transisi Baru (&delta;')
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div v-for="(step, index) in pdaEqResult.steps" :key="index" class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
+                                    <div class="text-base font-bold text-pink-700 mb-2 border-b border-pink-100 pb-2" v-html="step.title"></div>
+                                    <div class="text-sm text-slate-700 mb-4 leading-relaxed" v-html="step.desc"></div>
+                                    <div v-html="step.func" class="inline-block w-full sm:w-auto"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Overwrite Summary Section -->
+                        <div class="bg-indigo-50 border border-indigo-200 rounded-xl overflow-hidden shadow-sm mt-8">
+                            <div class="bg-indigo-800 text-white p-4 font-bold text-base flex items-center gap-2">
+                                <i class="ph ph-check-square-offset text-xl"></i> Ringkasan Hasil & Uji Untai
+                            </div>
+                            <div class="p-5 flex flex-col md:flex-row gap-6 items-start">
+                                <div class="flex-[1.5] w-full bg-white p-4 rounded-xl border border-indigo-100 shadow-inner">
+                                    <div class="font-bold text-sm text-indigo-800 mb-3 border-b border-indigo-50 pb-2">Daftar Lengkap Transisi Baru (&delta;'):</div>
+                                    <div class="max-h-64 overflow-y-auto font-mono text-sm text-slate-700 space-y-1.5 scrollbar-thin">
+                                        <div v-for="(t, idx) in pdaEqResult.rawTransitions" :key="'new-t-'+idx" class="border-b border-slate-50 pb-1 last:border-0">
+                                            &delta;'(<span v-html="formatPDA(t.from)"></span>, <span class="text-indigo-600 font-bold">{{t.input === '' ? '&epsilon;' : t.input}}</span>, <span v-html="formatPDA(t.pop)"></span>) = {(<span v-html="formatPDA(t.to)"></span>, <span v-html="t.push === '' ? '&epsilon;' : formatPDA(t.push)"></span>)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-indigo-900 mb-4 text-sm leading-relaxed">Proses konversi telah selesai. Mesin PDA baru ini secara matematis <b>ekuivalen</b> (mengenali bahasa yang sama persis) dengan mesin PDA asal. Untuk memudahkan Anda, daftar relasi transisi dari mesin yang baru disajikan di sebelah.</p>
+                                    <button @click="overwritePDAEQ" class="w-full px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-base flex items-center justify-center gap-2">
+                                        <i class="ph ph-magnifying-glass text-xl"></i> Uji String pada Mesin Baru
+                                    </button>
+                                    <p class="text-xs text-indigo-500 mt-3 text-center">Menekan tombol ini akan memindahkan konfigurasi mesin hasil konversi ini ke Editor Utama dengan Mode Uji Untai.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- ==================== MODUL 10: TURING SIMULATOR SETUP ==================== -->
+                <div v-else-if="gameState === 'TURING_SIM_SETUP'" key="turing_sim_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-amber-900 font-black text-lg flex items-center gap-2"><i class="ph ph-film-strip text-xl"></i> Simulasi Mesin Turing</h3>
+                            <p class="text-sm text-amber-700 mt-1">Evaluasi untai (string) dan perhatikan rekam jejak deskripsi seketika pada array pita yang tak terbatas.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadTMSimPreset('lat14-1a')" class="px-3 py-1.5 bg-white border border-amber-200 text-amber-800 rounded-lg text-xs font-bold shadow-sm hover:bg-amber-100 transition">Soal 14a ('a')</button>
+                            <button @click="loadTMSimPreset('lat14-1b')" class="px-3 py-1.5 bg-white border border-amber-200 text-amber-800 rounded-lg text-xs font-bold shadow-sm hover:bg-amber-100 transition">Soal 14b ('aa')</button>
+                            <button @click="loadTMSimPreset('lat15-a')" class="px-3 py-1.5 bg-white border border-amber-200 text-amber-800 rounded-lg text-xs font-bold shadow-sm hover:bg-amber-100 transition">Soal 15a ('aba')</button>
+                            <button @click="loadTMSimPreset('lat15-b')" class="px-3 py-1.5 bg-white border border-amber-200 text-amber-800 rounded-lg text-xs font-bold shadow-sm hover:bg-amber-100 transition">Soal 15b ('abaab')</button>
+                            <button @click="loadTMSimPreset('lat15-c')" class="px-3 py-1.5 bg-white border border-amber-200 text-amber-800 rounded-lg text-xs font-bold shadow-sm hover:bg-amber-100 transition">Soal 15c ('aabbaa')</button>
+                            <button @click="doRandomTMSim" class="px-3 py-1.5 bg-amber-600 border border-amber-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-amber-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Soal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Himpunan State (Q)</label>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <div v-for="s in tmSimConfig.states" :key="'tmstate-'+s" class="flex items-center bg-amber-50 text-amber-800 border border-amber-200 rounded-lg px-3 py-1.5 text-sm font-mono font-bold shadow-sm">
+                                        <span v-html="formatTuring(s)"></span>
+                                        <button @click="removeTMSimState(s)" class="ml-2 text-amber-400 hover:text-red-500 transition" title="Hapus State" :disabled="tmSimConfig.states.length <= 1">
+                                            <i class="ph ph-x-circle text-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button @click="addTMSimState()" class="text-xs bg-white hover:bg-slate-100 text-slate-700 px-3 py-1.5 rounded border border-slate-200 shadow-sm transition flex items-center gap-1 font-bold">
+                                    <i class="ph ph-plus"></i> Tambah State
+                                </button>
+                            </div>
+                            
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Final States (F)</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <label v-for="s in tmSimConfig.states" :key="'tmfinal-'+s" class="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-slate-50 transition shadow-sm">
+                                        <input type="checkbox" :value="s" v-model="tmSimConfig.final" class="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500">
+                                        <span class="text-sm font-mono font-bold text-slate-700" v-html="formatTuring(s)"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 col-span-1 md:col-span-2">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Simbol Blank (B)</label>
+                                    <input type="text" v-model="tmSimConfig.blank" maxlength="1" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-amber-400 outline-none shadow-sm text-center">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Start State (S)</label>
+                                    <select v-model="tmSimConfig.start" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-amber-400 outline-none shadow-sm text-center">
+                                        <option v-for="s in tmSimConfig.states" :key="'tmsopt-start-'+s" :value="s" v-html="formatTuring(s)"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-span-1 md:col-span-2 mt-2 bg-amber-100 p-5 rounded-xl border border-amber-300 shadow-inner">
+                                <label class="block text-base font-black text-amber-900 uppercase tracking-wide mb-2 flex items-center gap-2"><i class="ph ph-magnifying-glass text-xl"></i> Uji Coba Penerimaan Untai (String)</label>
+                                <input type="text" v-model="tmSimString" class="w-full bg-white border-2 border-amber-400 rounded-lg px-4 py-4 text-xl font-mono font-bold text-center focus:ring-4 focus:ring-amber-300 outline-none shadow-sm text-amber-900" placeholder="Contoh input: aab">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 flex justify-between items-center mt-2">
+                                <span>Transisi (&delta;)</span>
+                            </label>
+                            <div class="space-y-2 mb-3 max-h-64 overflow-y-auto pr-2 scrollbar-thin">
+                                <div v-for="(t, idx) in tmSimConfig.transitions" :key="'tm-t-'+idx" class="flex flex-wrap md:flex-nowrap gap-2 items-center bg-white p-2 rounded-lg border border-slate-200 shadow-sm text-sm font-mono">
+                                    <div class="flex items-center gap-1 w-full md:w-auto flex-1">
+                                        <span class="text-slate-400 font-bold">&delta;(</span>
+                                        <select v-model="t.from" class="w-16 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-amber-400">
+                                            <option v-for="s in tmSimConfig.states" :key="'tm-from-'+idx+'-'+s" :value="s" v-html="formatTuring(s)"></option>
+                                        </select>
+                                        <span>,</span>
+                                        <input type="text" v-model="t.read" maxlength="1" class="w-10 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-amber-400" placeholder="baca">
+                                        <span class="text-slate-400 font-bold">)</span>
+                                    </div>
+                                    <span class="hidden md:inline font-bold text-slate-400 mx-1">= {</span>
+                                    <div class="flex items-center gap-1 w-full md:w-auto flex-1">
+                                        <span class="md:hidden font-bold text-slate-400 mx-1">= {</span>
+                                        <select v-model="t.to" class="w-16 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-amber-400">
+                                            <option v-for="s in tmSimConfig.states" :key="'tm-to-'+idx+'-'+s" :value="s" v-html="formatTuring(s)"></option>
+                                        </select>
+                                        <span>,</span>
+                                        <input type="text" v-model="t.write" maxlength="1" class="w-12 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-amber-400" placeholder="tulis">
+                                        <span>,</span>
+                                        <select v-model="t.move" class="w-12 bg-slate-50 border rounded px-1 py-1 text-center outline-none focus:border-amber-400">
+                                            <option value="R">R</option>
+                                            <option value="L">L</option>
+                                        </select>
+                                        <span class="text-slate-400 font-bold">}</span>
+                                    </div>
+                                    <button @click="removeTMSimTrans(idx)" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded hover:bg-red-100 transition shrink-0"><i class="ph ph-trash"></i></button>
+                                </div>
+                            </div>
+                            <button @click="addTMSimTrans" class="w-full py-2 bg-white hover:bg-slate-100 text-slate-700 text-sm font-bold rounded-lg border border-slate-300 shadow-sm flex items-center justify-center gap-2 transition">
+                                <i class="ph ph-plus"></i> Tambah Transisi
+                            </button>
+                        </div>
+                    </div>
+
+                    <button @click="solveTMSim" class="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i class="ph ph-play-circle text-2xl"></i> Jalankan Simulasi Mesin Turing
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 10: TURING SIMULATOR REVIEW ==================== -->
+                <div v-else-if="gameState === 'TURING_SIM_REVIEW'" key="turing_sim_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-amber-900 flex items-center gap-2">
+                            <i class="ph ph-film-strip text-amber-600"></i> 
+                            Hasil Simulasi (Deskripsi Seketika)
+                        </h2>
+                        <button @click="goToTuringSim" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Kembali ke Editor
+                        </button>
+                    </div>
+                    
+                    <div v-if="tmSimResult" class="mb-2">
+                        <div class="p-6 rounded-xl shadow-sm border" :class="tmSimResult.accepted ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'">
+                            <h3 class="font-black text-2xl mb-3 flex items-center gap-2">
+                                <i :class="tmSimResult.accepted ? 'ph-check-circle text-emerald-600' : 'ph-warning text-red-600'"></i>
+                                Status Mesin: {{ tmSimResult.accepted ? 'DITERIMA (HALT)' : 'DITOLAK / CRASH' }}
+                            </h3>
+                            <p class="text-base mb-6 font-medium" v-if="!tmSimResult.accepted">{{ tmSimResult.reason }}</p>
+                            <p class="text-base mb-6 font-medium" v-else>{{ tmSimResult.reason }}</p>
+                            
+                            <div class="bg-white p-5 rounded-xl border shadow-inner overflow-hidden">
+                                <h4 class="font-bold text-sm uppercase tracking-wider text-slate-500 mb-4 border-b pb-2">Jejak Pergerakan Pita (Trace)</h4>
+                                <div class="space-y-4 max-h-[500px] overflow-y-auto scrollbar-thin pr-2">
+                                    <div v-for="(step, idx) in tmSimResult.path" :key="'tmsim-'+idx" class="flex items-start gap-4">
+                                        <span class="bg-slate-100 border text-slate-500 px-2 py-1.5 rounded-md font-bold text-xs mt-0.5 shrink-0 min-w-[60px] text-center">STEP {{idx}}</span>
+                                        <div class="flex flex-col w-full bg-slate-50 border border-slate-100 rounded-lg p-3">
+                                            <div class="font-mono text-xl tracking-[0.2em] mb-2 p-3 bg-white border shadow-sm rounded-lg overflow-x-auto whitespace-nowrap" v-html="step.trace"></div>
+                                            <div class="text-sm text-slate-600" v-html="step.desc"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MODUL 11: TURING COMBINE SETUP ==================== -->
+                <div v-else-if="gameState === 'TURING_COMBINE_SETUP'" key="turing_combine_setup" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col gap-6">
+                    <div class="bg-lime-50 border border-lime-200 p-5 rounded-xl shadow-sm flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+                        <div>
+                            <h3 class="text-lime-900 font-black text-lg flex items-center gap-2"><i class="ph ph-git-merge text-xl"></i> Kombinasi Mesin Turing (M<sub>3</sub> = M<sub>1</sub> + M<sub>2</sub>)</h3>
+                            <p class="text-sm text-lime-700 mt-1">Gabungkan mesin M<sub>1</sub> dan M<sub>2</sub> di mana output (Final State) dari M<sub>1</sub> akan diteruskan ke Start State M<sub>2</sub>.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadTMCombinePreset('lat14-combine')" class="px-3 py-1.5 bg-lime-600 border border-lime-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-lime-700 transition flex items-center gap-1">
+                                <i class="ph ph-books"></i> Latihan Modul
+                            </button>
+                            <button @click="doRandomTMCombine" class="px-3 py-1.5 bg-lime-600 border border-lime-700 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-lime-700 transition flex items-center gap-1">
+                                <i class="ph ph-arrows-clockwise"></i> Acak Mesin
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                        <!-- TM 1 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                            <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">Mesin 1 (M<sub>1</sub>)</h4>
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase">States (Q<sub>1</sub>)</label>
+                                    <input type="text" v-model="tmCombine1.states" class="w-full mt-1 bg-white border border-slate-300 rounded p-1.5 text-xs font-mono" :value="tmCombine1.states.join(', ')" @input="e => tmCombine1.states = e.target.value.split(',').map(s=>s.trim())">
+                                </div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase">Final State (F<sub>1</sub>)</label>
+                                    <input type="text" v-model="tmCombine1.final" class="w-full mt-1 bg-white border border-slate-300 rounded p-1.5 text-xs font-mono" :value="tmCombine1.final.join(', ')" @input="e => tmCombine1.final = e.target.value.split(',').map(s=>s.trim())">
+                                </div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase">Start (S<sub>1</sub>)</label>
+                                    <input type="text" v-model="tmCombine1.start" class="w-full mt-1 bg-white border border-slate-300 rounded p-1.5 text-xs font-mono">
+                                </div>
+                            </div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Transisi (&delta;<sub>1</sub>)</label>
+                            <div class="space-y-1.5 max-h-48 overflow-y-auto scrollbar-thin pr-1">
+                                <div v-for="(t, idx) in tmCombine1.transitions" :key="'tm1-t-'+idx" class="flex gap-1 items-center bg-white p-1 rounded border text-xs font-mono">
+                                    <span class="text-slate-400 font-bold ml-1">&delta;(</span>
+                                    <input type="text" v-model="t.from" class="w-8 bg-slate-50 border text-center outline-none"><span>,</span>
+                                    <input type="text" v-model="t.read" class="w-6 bg-slate-50 border text-center outline-none"><span class="text-slate-400 font-bold">)={</span>
+                                    <input type="text" v-model="t.to" class="w-8 bg-slate-50 border text-center outline-none"><span>,</span>
+                                    <input type="text" v-model="t.write" class="w-6 bg-slate-50 border text-center outline-none"><span>,</span>
+                                    <input type="text" v-model="t.move" class="w-6 bg-slate-50 border text-center outline-none"><span class="text-slate-400 font-bold">}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TM 2 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-inner">
+                            <h4 class="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-4">Mesin 2 (M<sub>2</sub>)</h4>
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase">States (Q<sub>2</sub>)</label>
+                                    <input type="text" v-model="tmCombine2.states" class="w-full mt-1 bg-white border border-slate-300 rounded p-1.5 text-xs font-mono" :value="tmCombine2.states.join(', ')" @input="e => tmCombine2.states = e.target.value.split(',').map(s=>s.trim())">
+                                </div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase">Final State (F<sub>2</sub>)</label>
+                                    <input type="text" v-model="tmCombine2.final" class="w-full mt-1 bg-white border border-slate-300 rounded p-1.5 text-xs font-mono" :value="tmCombine2.final.join(', ')" @input="e => tmCombine2.final = e.target.value.split(',').map(s=>s.trim())">
+                                </div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 uppercase">Start (S<sub>2</sub>)</label>
+                                    <input type="text" v-model="tmCombine2.start" class="w-full mt-1 bg-white border border-slate-300 rounded p-1.5 text-xs font-mono">
+                                </div>
+                            </div>
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Transisi (&delta;<sub>2</sub>)</label>
+                            <div class="space-y-1.5 max-h-48 overflow-y-auto scrollbar-thin pr-1">
+                                <div v-for="(t, idx) in tmCombine2.transitions" :key="'tm2-t-'+idx" class="flex gap-1 items-center bg-white p-1 rounded border text-xs font-mono">
+                                    <span class="text-slate-400 font-bold ml-1">&delta;(</span>
+                                    <input type="text" v-model="t.from" class="w-8 bg-slate-50 border text-center outline-none"><span>,</span>
+                                    <input type="text" v-model="t.read" class="w-6 bg-slate-50 border text-center outline-none"><span class="text-slate-400 font-bold">)={</span>
+                                    <input type="text" v-model="t.to" class="w-8 bg-slate-50 border text-center outline-none"><span>,</span>
+                                    <input type="text" v-model="t.write" class="w-6 bg-slate-50 border text-center outline-none"><span>,</span>
+                                    <input type="text" v-model="t.move" class="w-6 bg-slate-50 border text-center outline-none"><span class="text-slate-400 font-bold">}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button @click="solveTMCombine" class="w-full py-4 bg-lime-600 hover:bg-lime-700 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-lg flex items-center justify-center gap-2">
+                        <i class="ph ph-git-merge text-2xl"></i> Gabungkan Kedua Mesin
+                    </button>
+                </div>
+
+                <!-- ==================== MODUL 11: TURING COMBINE REVIEW ==================== -->
+                <div v-else-if="gameState === 'TURING_COMBINE_REVIEW'" key="turing_combine_review" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black text-lime-900 flex items-center gap-2">
+                            <i class="ph ph-git-merge text-lime-600"></i> 
+                            Hasil Mesin Gabungan (M<sub>3</sub>)
+                        </h2>
+                        <button @click="goToTuringCombine" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl shadow-sm border border-slate-300 transition flex items-center gap-2">
+                            <i class="ph ph-arrow-left text-lg"></i> Kembali ke Editor
+                        </button>
+                    </div>
+                    
+                    <div v-if="tmCombineResult" class="space-y-6">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h3 class="font-bold text-slate-800 mb-4 border-b pb-2 text-lg">Konfigurasi Mesin Turing Baru (M<sub>3</sub>)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm text-slate-700 leading-relaxed">
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-lime-800 bg-lime-50 px-2 py-1 rounded inline-block mb-1 border border-lime-100" v-html="`Q<sub>3</sub> = { ${tmCombineResult.tm3.states.map(s=>formatTuring(s)).join(', ')} }`"></div>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-lime-800 bg-lime-50 px-2 py-1 rounded inline-block mb-1 border border-lime-100" v-html="`S<sub>3</sub> = ${formatTuring(tmCombineResult.tm3.start)}`"></div>
+                                </div>
+                                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                                    <div class="font-mono font-bold text-lime-800 bg-lime-50 px-2 py-1 rounded inline-block mb-1 border border-lime-100" v-html="`F<sub>3</sub> = { ${tmCombineResult.tm3.final.map(s=>formatTuring(s)).join(', ')} }`"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                            <div class="bg-lime-800 text-white p-4 font-bold text-base border-b border-lime-900">
+                                Langkah-langkah Pembentukan (&delta;<sub>3</sub>)
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div v-for="(step, index) in tmCombineResult.details" :key="'cb-'+index" class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm text-sm text-slate-700 leading-relaxed" v-html="step"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Overwrite Section -->
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl overflow-hidden shadow-sm mt-8">
+                            <div class="bg-amber-600 text-white p-4 font-bold text-base flex items-center gap-2">
+                                <i class="ph ph-tape text-xl"></i> Uji String pada Mesin Gabungan
+                            </div>
+                            <div class="p-5 flex flex-col md:flex-row gap-6 items-start">
+                                <div class="flex-[1.5] w-full bg-white p-4 rounded-xl border border-amber-100 shadow-inner">
+                                    <div class="font-bold text-sm text-amber-800 mb-3 border-b border-amber-50 pb-2">Daftar Lengkap Transisi Baru (&delta;<sub>3</sub>):</div>
+                                    <div class="max-h-64 overflow-y-auto font-mono text-sm text-slate-700 space-y-1.5 scrollbar-thin">
+                                        <div v-for="(t, idx) in tmCombineResult.tm3.transitions" :key="'new-tm3-'+idx" class="border-b border-slate-50 pb-1 last:border-0">
+                                            &delta;<sub>3</sub>(<span v-html="formatTuring(t.from)"></span>, <b>{{t.read}}</b>) = {(<span v-html="formatTuring(t.to)"></span>, <b>{{t.write}}</b>, <b>{{t.move}}</b>)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-amber-900 mb-4 text-sm leading-relaxed">Penggabungan state dan relasi transisi sukses dilakukan tanpa tumpang tindih.</p>
+                                    <button @click="overwriteTuring" class="w-full px-6 py-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md transition transform hover:-translate-y-0.5 text-base flex items-center justify-center gap-2">
+                                        <i class="ph ph-play-circle text-xl"></i> Simulasikan (Overwrite)
+                                    </button>
+                                    <p class="text-xs text-amber-600 mt-3 text-center">Menekan tombol ini akan membawa spesifikasi mesin M<sub>3</sub> ke Modul 10 Simulator.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </transition>
+        </main>
+    </div>
+
+</body>
+</html>
